@@ -71,35 +71,6 @@ const nextConfig: NextConfig = {
     ];
   },
   
-  // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
-    // Production optimizations
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: "all",
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendor",
-            chunks: "all",
-            maxSize: 170000, // 170KB limit from PRD
-          },
-          animations: {
-            test: /[\\/]node_modules[\\/](framer-motion|lottie-web|gsap)[\\/]/,
-            name: "animations",
-            chunks: "all",
-            priority: 10,
-          },
-        },
-      };
-    }
-    
-    return config;
-  },
-  
-  // Output optimization
-  output: "standalone",
-  
   // Enable compression
   compress: true,
   

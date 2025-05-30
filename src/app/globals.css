@@ -167,6 +167,11 @@
   .animate-float {
     animation: float-up 20s linear infinite;
   }
+  
+  /* SVG Line Drawing Animation */
+  .animate-draw-line {
+    animation: draw-line 2s ease-out forwards;
+  }
 }
 
 @keyframes fade-up {
@@ -194,6 +199,15 @@
   100% {
     transform: translateY(-10vh) translateX(30px);
     opacity: 0;
+  }
+}
+
+@keyframes draw-line {
+  0% {
+    stroke-dashoffset: inherit;
+  }
+  100% {
+    stroke-dashoffset: 0;
   }
 }
 

@@ -182,7 +182,7 @@ const ProjectTypeSelector = ({
   const projectTypes = [
     { id: 'web', label: 'Web Development', color: 'from-blue-500 to-blue-600' },
     { id: 'ai', label: 'AI & Automation', color: 'from-purple-500 to-purple-600' },
-    { id: 'security', label: 'Cyber Defence', color: 'from-red-500 to-red-600' },
+    { id: 'security', label: 'Cyber Security', color: 'from-red-500 to-red-600' },
     { id: 'cloud', label: 'Infrastructure & Cloud', color: 'from-green-500 to-green-600' },
     { id: 'consulting', label: 'Consulting', color: 'from-orange-500 to-orange-600' },
     { id: 'other', label: 'Other', color: 'from-gray-500 to-gray-600' }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 
 // Icon Components with enhanced animations
 const ClarityIcon = () => (
@@ -135,13 +136,14 @@ const FloatingParticles = ({ count = 6 }) => {
   );
 };
 
-// Enhanced Feature Card Component
+// Enhanced Feature Card Component with directional animations
 interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
   description: string;
   index: number;
+  direction: 'left' | 'right' | 'top';
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
@@ -149,15 +151,83 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   title, 
   subtitle, 
   description,
-  index
+  index,
+  direction
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const isInView = useInView(cardRef, { once: true, amount: 0.3 });
 
   // Handle client-side mounting to prevent hydration issues
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Different animation variants based on direction
+  const getAnimationVariants = () => {
+    const baseVariants = {
+      initial: {
+        opacity: 0,
+        scale: 0.8,
+      },
+      animate: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1],
+          delay: index * 0.2 + 0.3
+        }
+      }
+    };
+
+    switch (direction) {
+      case 'left':
+        return {
+          ...baseVariants,
+          initial: {
+            ...baseVariants.initial,
+            x: -100,
+            rotateY: -30,
+          },
+          animate: {
+            ...baseVariants.animate,
+            x: 0,
+            rotateY: 0,
+          }
+        };
+      case 'right':
+        return {
+          ...baseVariants,
+          initial: {
+            ...baseVariants.initial,
+            x: 100,
+            rotateY: 30,
+          },
+          animate: {
+            ...baseVariants.animate,
+            x: 0,
+            rotateY: 0,
+          }
+        };
+      case 'top':
+        return {
+          ...baseVariants,
+          initial: {
+            ...baseVariants.initial,
+            y: -100,
+            rotateX: 30,
+          },
+          animate: {
+            ...baseVariants.animate,
+            y: 0,
+            rotateX: 0,
+          }
+        };
+      default:
+        return baseVariants;
+    }
+  };
 
   useEffect(() => {
     if (!isMounted) return;
@@ -198,101 +268,211 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   }, [isMounted]);
 
   return (
-    <div 
+    <motion.div 
       ref={cardRef}
       className="relative flex flex-col items-center text-center group cursor-pointer transition-all duration-300 transform-gpu"
-      style={{
-        animationDelay: `${index * 200}ms`,
+      variants={getAnimationVariants()}
+      initial="initial"
+      animate={isMounted && isInView ? "animate" : "initial"}
+      whileHover={{
+        y: -10,
+        scale: 1.02,
+        transition: { duration: 0.3, ease: "easeOut" }
       }}
       suppressHydrationWarning
     >
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-matcha/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl scale-110" />
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-br from-matcha/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl scale-110"
+        whileHover={{
+          scale: 1.2,
+          opacity: 1,
+        }}
+      />
       
       {/* Floating particles */}
       <FloatingParticles count={4} />
       
       {/* Icon Container with enhanced effects */}
-      <div className="relative mb-8 p-8 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-md text-charcoal group-hover:border-matcha/50 group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-matcha/10 group-hover:shadow-2xl group-hover:shadow-matcha/20 transition-all duration-500 transform group-hover:-translate-y-2">
+      <motion.div 
+        className="relative mb-8 p-8 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-md text-charcoal group-hover:border-matcha/50 group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-matcha/10 group-hover:shadow-2xl group-hover:shadow-matcha/20 transition-all duration-500"
+        whileHover={{
+          y: -5,
+          rotateZ: 2,
+          transition: { duration: 0.3 }
+        }}
+      >
         {/* Inner glow */}
         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-matcha/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
         {/* Icon */}
-        <div className="relative z-10">
+        <motion.div 
+          className="relative z-10"
+          whileHover={{
+            scale: 1.1,
+            rotateZ: -2,
+            transition: { duration: 0.3 }
+          }}
+        >
           {icon}
-        </div>
+        </motion.div>
         
         {/* Animated border */}
         <div className="absolute inset-0 rounded-3xl border-2 border-matcha/30 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-500" />
-      </div>
+      </motion.div>
       
       {/* Content */}
-      <div className="relative z-10">
+      <motion.div 
+        className="relative z-10"
+        whileHover={{
+          y: -2,
+          transition: { duration: 0.3 }
+        }}
+      >
         {/* Title with gradient text effect */}
-        <h3 className="mb-2 text-3xl font-black text-charcoal group-hover:bg-gradient-to-r group-hover:from-charcoal group-hover:to-matcha group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+        <motion.h3 
+          className="mb-2 text-3xl font-black text-charcoal group-hover:bg-gradient-to-r group-hover:from-charcoal group-hover:to-matcha group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
+          whileHover={{
+            scale: 1.05,
+            transition: { duration: 0.2 }
+          }}
+        >
           {title}
-        </h3>
-        <h4 className="mb-6 text-xl font-semibold text-charcoal/70 group-hover:text-matcha/80 transition-colors duration-300">
+        </motion.h3>
+        <motion.h4 
+          className="mb-6 text-xl font-semibold text-charcoal/70 group-hover:text-matcha/80 transition-colors duration-300"
+          whileHover={{
+            x: 5,
+            transition: { duration: 0.2 }
+          }}
+        >
           {subtitle}
-        </h4>
+        </motion.h4>
         
         {/* Description with enhanced typography */}
-        <p className="text-charcoal/60 leading-relaxed max-w-sm text-lg group-hover:text-charcoal/80 transition-colors duration-300">
+        <motion.p 
+          className="text-charcoal/60 leading-relaxed max-w-sm text-lg group-hover:text-charcoal/80 transition-colors duration-300"
+          whileHover={{
+            scale: 1.02,
+            transition: { duration: 0.2 }
+          }}
+        >
           {description}
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
       
       {/* Subtle animated underline */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-matcha to-matcha-dark group-hover:w-20 transition-all duration-500" />
-    </div>
+      <motion.div 
+        className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-matcha to-matcha-dark group-hover:w-20 transition-all duration-500"
+        whileHover={{
+          width: 80,
+          scaleX: 1.1,
+          transition: { duration: 0.3 }
+        }}
+      />
+    </motion.div>
   );
 };
 
 // Main Advantage Section Component
 export default function AdvantageSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const features = [
     {
       icon: <ClarityIcon />,
       title: "Clarity",
       subtitle: "in Code",
-      description: "Clean, maintainable code that scales with your business. Every line is purposeful, documented, and built for the long term."
+      description: "Clean, maintainable code that scales with your business. Every line is purposeful, documented, and built for the long term.",
+      direction: 'left' as const
     },
     {
       icon: <SecurityIcon />,
       title: "Security",
       subtitle: "by Design",
-      description: "Enterprise-grade security protocols integrated from day one. Your data and infrastructure are protected at every layer."
+      description: "Enterprise-grade security protocols integrated from day one. Your data and infrastructure are protected at every layer.",
+      direction: 'top' as const
     },
     {
       icon: <SpeedIcon />,
       title: "Speed",
       subtitle: "by Default",
-      description: "Optimized performance that delivers exceptional user experiences. Fast loading times that keep your users engaged."
+      description: "Optimized performance that delivers exceptional user experiences. Fast loading times that keep your users engaged.",
+      direction: 'right' as const
     }
   ];
 
   return (
-    <section className="relative py-24 bg-gradient-to-br from-ivory/80 via-white to-matcha/5 overflow-hidden">
+    <section ref={sectionRef} className="relative py-24 bg-gradient-to-br from-ivory/80 via-white to-matcha/5 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-matcha/10 to-transparent rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-tr from-matcha/5 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <motion.div 
+          className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-matcha/10 to-transparent rounded-full blur-3xl"
+          animate={isMounted ? {
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+            rotate: [0, 180, 360],
+          } : {}}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-tr from-matcha/5 to-transparent rounded-full blur-3xl"
+          animate={isMounted ? {
+            scale: [1.2, 1, 1.2],
+            opacity: [0.4, 0.8, 0.4],
+            rotate: [360, 180, 0],
+          } : {}}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
       </div>
       
       <div className="relative container mx-auto px-6">
         {/* Section Header with enhanced animations */}
-        <div className="text-center mb-20">
-          <h2 
-            className="mb-6 text-charcoal font-black tracking-tight bg-gradient-to-r from-charcoal via-charcoal to-matcha bg-clip-text text-transparent animate-gradient-x"
+        <motion.div 
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 50 }}
+          animate={isMounted && isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.h2 
+            className="mb-6 text-charcoal font-black tracking-tight bg-gradient-to-r from-charcoal via-charcoal to-matcha bg-clip-text text-transparent"
             style={{
               fontSize: 'clamp(36px, 6vw, 64px)',
               letterSpacing: '-0.02em',
               backgroundSize: '200% auto',
             }}
+            animate={isMounted ? {
+              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+            } : {}}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
             THE IMP ADVANTAGE
-          </h2>
-          <div className="relative">
+          </motion.h2>
+          <motion.div 
+            className="relative"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={isMounted && isInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             <p 
               className="text-charcoal/70 font-semibold relative z-10"
               style={{
@@ -302,11 +482,16 @@ export default function AdvantageSection() {
               Built on clarity, integrity, execution.
             </p>
             {/* Animated underline */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-matcha to-matcha-dark rounded-full animate-pulse" />
-          </div>
-        </div>
+            <motion.div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-matcha to-matcha-dark rounded-full"
+              initial={{ width: 0 }}
+              animate={isMounted && isInView ? { width: 96 } : {}}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            />
+          </motion.div>
+        </motion.div>
         
-        {/* Features Grid with staggered animations */}
+        {/* Features Grid with staggered directional animations */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-20 max-w-7xl mx-auto">
           {features.map((feature, index) => (
             <FeatureCard
@@ -316,6 +501,7 @@ export default function AdvantageSection() {
               title={feature.title}
               subtitle={feature.subtitle}
               description={feature.description}
+              direction={feature.direction}
             />
           ))}
         </div>
@@ -334,21 +520,8 @@ export default function AdvantageSection() {
           }
         }
         
-        @keyframes gradient-x {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-        
         .animate-float-slow {
           animation: float-slow 8s ease-in-out infinite;
-        }
-        
-        .animate-gradient-x {
-          animation: gradient-x 3s ease infinite;
         }
       `}</style>
     </section>

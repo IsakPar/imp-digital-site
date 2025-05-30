@@ -5,7 +5,7 @@ import { ArrowRight, Play, Pause } from 'lucide-react';
 import { caseStudies, CaseStudy } from '@/data/caseStudies';
 import { H2, Paragraph } from '@/components/ui';
 
-// Individual Case Study Card Component
+// Individual Case Study Card Component with Premium Animations
 const CaseStudyCard = ({ 
   study, 
   index, 
@@ -29,123 +29,332 @@ const CaseStudyCard = ({
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.8, 1]);
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.95, 1]);
 
+  // Different entrance patterns for variety
+  const getEntranceAnimation = (index: number) => {
+    const patterns = [
+      // Flip in from left
+      {
+        initial: { 
+          opacity: 0, 
+          rotateY: -90, 
+          x: -50,
+          scale: 0.8 
+        },
+        animate: { 
+          opacity: 1, 
+          rotateY: 0, 
+          x: 0,
+          scale: 1,
+          transition: {
+            duration: 0.8,
+            ease: [0.25, 0.46, 0.45, 0.94],
+            delay: index * 0.1
+          }
+        }
+      },
+      // Scale and rotate in
+      {
+        initial: { 
+          opacity: 0, 
+          scale: 0.3, 
+          rotate: 20 
+        },
+        animate: { 
+          opacity: 1, 
+          scale: 1, 
+          rotate: 0,
+          transition: {
+            type: "spring",
+            stiffness: 120,
+            damping: 10,
+            delay: index * 0.1
+          }
+        }
+      },
+      // Slide in from bottom with rotation
+      {
+        initial: { 
+          opacity: 0, 
+          y: 100, 
+          rotateX: 45,
+          scale: 0.9 
+        },
+        animate: { 
+          opacity: 1, 
+          y: 0, 
+          rotateX: 0,
+          scale: 1,
+          transition: {
+            duration: 0.7,
+            ease: [0.22, 1, 0.36, 1],
+            delay: index * 0.1
+          }
+        }
+      }
+    ];
+    
+    return patterns[index % patterns.length];
+  };
+
+  const entrancePattern = getEntranceAnimation(index);
+
   return (
     <motion.article
       ref={cardRef}
-      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
+      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer relative"
       style={{ 
         y, 
         opacity, 
         scale,
-        width: `${cardWidth}px`
+        width: `${cardWidth}px`,
+        transformStyle: "preserve-3d"
       }}
-      initial={{ x: 100, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ 
-        delay: index * 0.1,
-        duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }}
+      initial={entrancePattern.initial}
+      animate={entrancePattern.animate}
       whileHover={{ 
-        y: -10,
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-        transition: { duration: 0.3 }
+        y: -15,
+        scale: 1.03,
+        rotateY: isActive ? 0 : 2,
+        boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+        transition: { 
+          duration: 0.4,
+          ease: "easeOut"
+        }
       }}
       onClick={onClick}
     >
-      {/* Thumbnail with overlay */}
+      {/* Animated gradient overlay */}
+      <motion.div
+        className="absolute inset-0 opacity-0 rounded-2xl"
+        style={{
+          background: `linear-gradient(135deg, ${study.color}20 0%, ${study.color}10 50%, transparent 100%)`
+        }}
+        whileHover={{
+          opacity: 1,
+          transition: { duration: 0.3 }
+        }}
+      />
+
+      {/* Thumbnail with enhanced effects */}
       <div className="relative overflow-hidden h-56">
         <motion.img
           src={study.project.thumbnail}
           alt={study.project.title}
           className="w-full h-full object-cover"
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          whileHover={{ 
+            scale: 1.08,
+            transition: { duration: 0.6, ease: 'easeOut' }
+          }}
         />
         
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        {/* Animated gradient overlay */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+          whileHover={{
+            background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent, transparent)",
+            transition: { duration: 0.3 }
+          }}
+        />
         
-        {/* Client logo */}
-        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2">
+        {/* Floating particles overlay */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          whileHover={{
+            opacity: 1,
+            transition: { duration: 0.4 }
+          }}
+          initial={{ opacity: 0 }}
+        >
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-white/40 rounded-full"
+              style={{
+                left: `${10 + i * 20}%`,
+                top: `${20 + (i % 3) * 25}%`,
+              }}
+              animate={{
+                y: [-5, 5, -5],
+                opacity: [0.4, 0.8, 0.4],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: 2 + i * 0.5,
+                repeat: Infinity,
+                delay: i * 0.3,
+              }}
+            />
+          ))}
+        </motion.div>
+        
+        {/* Client logo with enhanced animation */}
+        <motion.div 
+          className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2"
+          whileHover={{
+            scale: 1.05,
+            backgroundColor: "rgba(255,255,255,0.95)",
+            y: -2,
+            transition: { duration: 0.2 }
+          }}
+        >
           <span className="font-semibold text-charcoal">{study.client.name}</span>
-        </div>
+        </motion.div>
         
-        {/* Industry tag */}
-        <div className="absolute top-4 left-4">
+        {/* Industry tag with animation */}
+        <motion.div 
+          className="absolute top-4 left-4"
+          whileHover={{
+            scale: 1.1,
+            y: -2,
+            transition: { type: "spring", stiffness: 300 }
+          }}
+        >
           <span 
-            className="px-3 py-1 rounded-full text-sm font-medium text-charcoal/80"
+            className="px-3 py-1 rounded-full text-sm font-medium text-charcoal/80 backdrop-blur-sm"
             style={{ backgroundColor: study.color }}
           >
             {study.client.industry}
           </span>
-        </div>
+        </motion.div>
+
+        {/* Hover play button */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.5 }}
+          whileHover={{
+            opacity: 1,
+            scale: 1,
+            transition: { duration: 0.3 }
+          }}
+        >
+          <motion.div
+            className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center"
+            whileHover={{
+              scale: 1.1,
+              backgroundColor: "rgba(255,255,255,0.3)",
+              transition: { duration: 0.2 }
+            }}
+          >
+            <Play size={24} className="text-white ml-1" />
+          </motion.div>
+        </motion.div>
       </div>
       
-      {/* Content */}
-      <div className="p-8">
-        <h3 className="text-2xl font-bold text-charcoal mb-3 group-hover:text-gray-700 transition-colors">
+      {/* Content with micro-animations */}
+      <motion.div 
+        className="p-6 relative z-10"
+        whileHover={{
+          y: -3,
+          transition: { duration: 0.2 }
+        }}
+      >
+        <motion.h3 
+          className="text-xl font-bold text-charcoal mb-2 leading-tight"
+          whileHover={{
+            color: study.color,
+            x: 2,
+            transition: { duration: 0.2 }
+          }}
+        >
           {study.project.title}
-        </h3>
+        </motion.h3>
         
-        <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">
+        <motion.p 
+          className="text-gray-600 mb-4 leading-relaxed"
+          whileHover={{
+            color: "#4B5563",
+            transition: { duration: 0.2 }
+          }}
+        >
           {study.project.description}
-        </p>
+        </motion.p>
         
-        {/* Metrics */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {study.project.metrics.map((metric, i) => (
-            <motion.div
-              key={i}
-              className="text-center"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
+        {/* Results with enhanced animations */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {study.project.metrics.slice(0, 2).map((metric, metricIndex) => (
+            <motion.div 
+              key={metricIndex}
+              className="text-center p-3 bg-gray-50 rounded-lg relative overflow-hidden"
+              whileHover={{
+                backgroundColor: `${study.color}10`,
+                scale: 1.02,
+                transition: { duration: 0.3 }
+              }}
             >
-              <div className="text-xl font-bold text-charcoal mb-1">
+              <motion.div 
+                className="text-lg font-bold"
+                style={{ color: study.color }}
+                whileHover={{
+                  scale: 1.1,
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+              >
                 {metric.value}
-              </div>
-              <div className="text-xs text-gray-500 uppercase tracking-wide">
-                {metric.label}
-              </div>
-              {metric.improvement && (
-                <div className="text-xs text-green-600 font-medium">
-                  {metric.improvement}
-                </div>
-              )}
+              </motion.div>
+              <div className="text-xs text-gray-600 font-medium">{metric.label}</div>
+              
+              {/* Animated progress bar */}
+              <motion.div
+                className="absolute bottom-0 left-0 h-1 rounded-full"
+                style={{ backgroundColor: study.color }}
+                initial={{ width: 0 }}
+                whileHover={{
+                  width: "100%",
+                  transition: { duration: 0.4 }
+                }}
+              />
             </motion.div>
           ))}
         </div>
         
-        {/* Technologies */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {study.technologies.slice(0, 3).map((tech) => (
-            <span
-              key={tech}
-              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
-            >
-              {tech}
-            </span>
-          ))}
-          {study.technologies.length > 3 && (
-            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-              +{study.technologies.length - 3} more
-            </span>
-          )}
-        </div>
-        
-        {/* CTA */}
-        <motion.div
-          className="flex items-center text-charcoal font-medium group-hover:text-gray-600 transition-colors"
-          whileHover={{ x: 5 }}
+        {/* CTA with enhanced animation */}
+        <motion.div 
+          className="flex items-center justify-between pt-4 border-t border-gray-100"
+          whileHover={{
+            paddingTop: "18px",
+            transition: { duration: 0.2 }
+          }}
         >
-          <span className="mr-2">{study.cta.label}</span>
-          <ArrowRight 
-            size={18} 
-            className="group-hover:translate-x-1 transition-transform" 
-          />
+          <motion.span 
+            className="text-sm text-gray-500"
+            whileHover={{
+              color: study.color,
+              transition: { duration: 0.2 }
+            }}
+          >
+            2024
+          </motion.span>
+          <motion.div 
+            className="flex items-center text-charcoal font-medium group-hover:text-matcha transition-colors"
+            whileHover={{
+              x: 3,
+              transition: { duration: 0.2 }
+            }}
+          >
+            <span className="mr-2 text-sm">View case</span>
+            <motion.div
+              whileHover={{
+                x: 2,
+                scale: 1.1,
+                transition: { type: "spring", stiffness: 400 }
+              }}
+            >
+              <ArrowRight size={14} />
+            </motion.div>
+          </motion.div>
         </motion.div>
-      </div>
+      </motion.div>
+
+      {/* Animated border effect */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl border-2 opacity-0 pointer-events-none"
+        style={{ borderColor: study.color }}
+        whileHover={{
+          opacity: 1,
+          scale: 1.01,
+          transition: { duration: 0.3 }
+        }}
+      />
     </motion.article>
   );
 };

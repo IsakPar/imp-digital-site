@@ -127,9 +127,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   // Prevent hydration mismatch by not showing scrolled state until mounted
   const navigationClasses = `
     h-20 md:h-20 px-4 md:px-8 flex items-center justify-between
-    transition-all duration-300
+    transition-all duration-500 ease-out
     ${mounted && isScrolled 
-      ? 'bg-ivory/95 backdrop-blur-[10px] shadow-sm border-b border-silver/20' 
+      ? 'bg-ivory/80 backdrop-blur-[16px] shadow-lg border-b border-silver/30 backdrop-saturate-[180%]' 
       : 'bg-transparent'
     }
   `;
@@ -138,7 +138,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     <>
       {/* Main Navigation Bar */}
       <header
-        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${className}`}
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-500 ease-out ${className}`}
+        style={{
+          backdropFilter: mounted && isScrolled ? 'blur(16px) saturate(180%)' : 'none',
+        }}
       >
         <div className={navigationClasses}>
           <Logo 

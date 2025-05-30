@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 // Geometric Icon Components
 const CircleIcon = () => (
@@ -30,19 +32,17 @@ const CircleIcon = () => (
 const TriangleIcon = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
     <path
-      d="M32 8L56 48H8L32 8Z"
+      d="M32 8 L56 52 L8 52 Z"
       stroke="currentColor"
       strokeWidth="2"
       fill="none"
-      strokeLinejoin="round"
       className="group-hover:stroke-matcha transition-colors duration-300"
     />
     <path
-      d="M32 20L44 40H20L32 20Z"
+      d="M32 20 L44 44 L20 44 Z"
       stroke="currentColor"
       strokeWidth="1.5"
       fill="none"
-      strokeLinejoin="round"
       opacity="0.6"
       className="group-hover:stroke-matcha group-hover:opacity-100 transition-all duration-300"
     />
@@ -78,41 +78,52 @@ const SquareIcon = () => (
 const InvertedTriangleIcon = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
     <path
-      d="M8 16H56L32 56L8 16Z"
+      d="M8 12 L56 12 L32 56 Z"
       stroke="currentColor"
       strokeWidth="2"
       fill="none"
-      strokeLinejoin="round"
       className="group-hover:stroke-matcha transition-colors duration-300"
     />
     <path
-      d="M20 24H44L32 44L20 24Z"
+      d="M20 20 L44 20 L32 44 Z"
       stroke="currentColor"
       strokeWidth="1.5"
       fill="none"
-      strokeLinejoin="round"
       opacity="0.6"
       className="group-hover:stroke-matcha group-hover:opacity-100 transition-all duration-300"
     />
   </svg>
 );
 
-// Connecting Lines Component
+// Simplified Connecting Lines Component
 const ConnectingLines = () => {
+  const [isMounted, setIsMounted] = useState(false);
   const [animate, setAnimate] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setAnimate(true);
+        if (entry.isIntersecting) {
+          // Delay animation start to ensure smooth transition
+          setTimeout(() => setAnimate(true), 100);
+        }
       },
       { threshold: 0.3 }
     );
 
-    if (svgRef.current) observer.observe(svgRef.current);
+    if (svgRef.current) {
+      observer.observe(svgRef.current);
+    }
+
     return () => observer.disconnect();
-  }, []);
+  }, [isMounted]);
 
   return (
     <svg 
@@ -121,200 +132,83 @@ const ConnectingLines = () => {
       viewBox="0 0 1000 800" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
+      suppressHydrationWarning
     >
-      {/* TEST LINE - Simple hardcoded line to verify animations work */}
-      <path
-        d="M100 100 L300 100"
-        stroke="#7ED321"
-        strokeWidth="3"
-        fill="none"
-        opacity="0.8"
-        strokeDasharray="200"
-        strokeDashoffset="200"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '0.5s' }}
-      />
-      
-      {/* Main horizontal connections */}
-      <path
-        d="M150 200 Q350 150 650 200"
-        stroke="#4A4A4A"
-        strokeWidth="1.5"
-        fill="none"
-        opacity="0.4"
-        strokeDasharray="1200"
-        strokeDashoffset="1200"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '1s' }}
-      />
-      <path
-        d="M150 600 Q350 650 650 600"
-        stroke="#4A4A4A"
-        strokeWidth="1.5"
-        fill="none"
-        opacity="0.4"
-        strokeDasharray="1200"
-        strokeDashoffset="1200"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '3s' }}
-      />
-      
-      {/* Vertical connections */}
-      <path
-        d="M150 200 Q100 400 150 600"
-        stroke="#4A4A4A"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.3"
-        strokeDasharray="800"
-        strokeDashoffset="800"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '1.5s' }}
-      />
-      <path
-        d="M650 200 Q700 400 650 600"
-        stroke="#4A4A4A"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.3"
-        strokeDasharray="800"
-        strokeDashoffset="800"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '2s' }}
-      />
-      
-      {/* Diagonal cross connections */}
-      <path
-        d="M150 200 Q400 350 650 600"
-        stroke="#4A4A4A"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.25"
-        strokeDasharray="1000"
-        strokeDashoffset="1000"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '2.5s' }}
-      />
-      <path
-        d="M650 200 Q400 350 150 600"
-        stroke="#4A4A4A"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.25"
-        strokeDasharray="1000"
-        strokeDashoffset="1000"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '2.7s' }}
-      />
-      
-      {/* Flowing organic curves - Left side */}
-      <path
-        d="M50 300 Q150 250 250 300 Q350 350 250 400 Q150 450 50 400 Q-20 350 50 300"
-        stroke="#4A4A4A"
-        strokeWidth="0.8"
-        fill="none"
-        opacity="0.2"
-        strokeDasharray="1500"
-        strokeDashoffset="1500"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '3.5s' }}
-      />
-      
-      {/* Flowing organic curves - Right side */}
-      <path
-        d="M750 300 Q650 250 550 300 Q450 350 550 400 Q650 450 750 400 Q820 350 750 300"
-        stroke="#4A4A4A"
-        strokeWidth="0.8"
-        fill="none"
-        opacity="0.2"
-        strokeDasharray="1500"
-        strokeDashoffset="1500"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '3.7s' }}
-      />
-      
-      {/* Central flowing connections */}
-      <path
-        d="M400 100 Q500 200 400 300 Q300 400 400 500 Q500 600 400 700"
-        stroke="#4A4A4A"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.2"
-        strokeDasharray="1200"
-        strokeDashoffset="1200"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '4s' }}
-      />
-      
-      {/* Additional flowing curves around modules */}
-      <path
-        d="M100 150 Q200 100 300 150 Q200 200 100 150"
-        stroke="#4A4A4A"
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.15"
-        strokeDasharray="600"
-        strokeDashoffset="600"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '4.2s' }}
-      />
-      <path
-        d="M500 150 Q600 100 700 150 Q600 200 500 150"
-        stroke="#4A4A4A"
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.15"
-        strokeDasharray="600"
-        strokeDashoffset="600"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '4.4s' }}
-      />
-      <path
-        d="M100 550 Q200 500 300 550 Q200 600 100 550"
-        stroke="#4A4A4A"
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.15"
-        strokeDasharray="600"
-        strokeDashoffset="600"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '4.6s' }}
-      />
-      <path
-        d="M500 550 Q600 500 700 550 Q600 600 500 550"
-        stroke="#4A4A4A"
-        strokeWidth="0.6"
-        fill="none"
-        opacity="0.15"
-        strokeDasharray="600"
-        strokeDashoffset="600"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '4.8s' }}
-      />
-      
-      {/* Micro connections between modules */}
-      <path
-        d="M250 200 Q400 180 550 200"
-        stroke="#4A4A4A"
-        strokeWidth="0.5"
-        fill="none"
-        opacity="0.3"
-        strokeDasharray="400"
-        strokeDashoffset="400"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '1.8s' }}
-      />
-      <path
-        d="M250 600 Q400 620 550 600"
-        stroke="#4A4A4A"
-        strokeWidth="0.5"
-        fill="none"
-        opacity="0.3"
-        strokeDasharray="400"
-        strokeDashoffset="400"
-        className={animate ? 'animate-draw-line' : ''}
-        style={{ animationDelay: '3.2s' }}
-      />
+      {isMounted && (
+        <>
+          {/* Main horizontal connections */}
+          <path
+            d="M150 200 Q350 150 650 200"
+            stroke="#4A4A4A"
+            strokeWidth="1.5"
+            fill="none"
+            opacity="0.4"
+            strokeDasharray="1200"
+            strokeDashoffset={animate ? "0" : "1200"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '1000ms' }}
+          />
+          <path
+            d="M150 600 Q350 650 650 600"
+            stroke="#4A4A4A"
+            strokeWidth="1.5"
+            fill="none"
+            opacity="0.4"
+            strokeDasharray="1200"
+            strokeDashoffset={animate ? "0" : "1200"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '3000ms' }}
+          />
+          
+          {/* Vertical connections */}
+          <path
+            d="M150 200 Q100 400 150 600"
+            stroke="#4A4A4A"
+            strokeWidth="1"
+            fill="none"
+            opacity="0.3"
+            strokeDasharray="800"
+            strokeDashoffset={animate ? "0" : "800"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '1500ms' }}
+          />
+          <path
+            d="M650 200 Q700 400 650 600"
+            stroke="#4A4A4A"
+            strokeWidth="1"
+            fill="none"
+            opacity="0.3"
+            strokeDasharray="800"
+            strokeDashoffset={animate ? "0" : "800"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '2000ms' }}
+          />
+          
+          {/* Diagonal cross connections */}
+          <path
+            d="M150 200 Q400 350 650 600"
+            stroke="#4A4A4A"
+            strokeWidth="1"
+            fill="none"
+            opacity="0.25"
+            strokeDasharray="1000"
+            strokeDashoffset={animate ? "0" : "1000"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '2500ms' }}
+          />
+          <path
+            d="M650 200 Q400 350 150 600"
+            stroke="#4A4A4A"
+            strokeWidth="1"
+            fill="none"
+            opacity="0.25"
+            strokeDasharray="1000"
+            strokeDashoffset={animate ? "0" : "1000"}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{ transitionDelay: '2700ms' }}
+          />
+        </>
+      )}
     </svg>
   );
 };
@@ -326,6 +220,7 @@ interface ServiceModuleProps {
   description: string;
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   delay: number;
+  link: string;
 }
 
 const ServiceModule: React.FC<ServiceModuleProps> = ({ 
@@ -333,10 +228,11 @@ const ServiceModule: React.FC<ServiceModuleProps> = ({
   title, 
   description, 
   position,
-  delay 
+  delay,
+  link
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const moduleRef = useRef<HTMLDivElement>(null);
 
   // Handle client-side mounting to prevent hydration issues
@@ -374,11 +270,10 @@ const ServiceModule: React.FC<ServiceModuleProps> = ({
     <div 
       ref={moduleRef}
       className={`
-        group relative bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 
-        hover:bg-white/80 hover:border-matcha/30 hover:shadow-xl hover:shadow-matcha/10
-        transition-all duration-500 cursor-pointer transform
+        relative
         ${positionClasses[position]}
         ${isMounted && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+        transition-all duration-500
       `}
       style={{
         transitionDelay: `${delay}ms`,
@@ -386,28 +281,33 @@ const ServiceModule: React.FC<ServiceModuleProps> = ({
       }}
       suppressHydrationWarning
     >
-      {/* Icon */}
-      <div className="mb-6 text-charcoal">
-        {icon}
-      </div>
-      
-      {/* Content */}
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-charcoal mb-3 group-hover:text-matcha-dark transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="text-charcoal/70 leading-relaxed text-sm">
-          {description}
-        </p>
-      </div>
-      
-      {/* Learn More Button */}
-      <button className="px-6 py-2 border border-charcoal/30 text-charcoal text-sm font-medium rounded-lg hover:border-matcha hover:text-matcha hover:bg-matcha/5 transition-all duration-300 group-hover:scale-105">
-        Learn more
-      </button>
-      
-      {/* Hover glow effect */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-matcha/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <Link 
+        href={link} 
+        className="group block bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 hover:bg-white/80 hover:border-matcha/30 hover:shadow-xl hover:shadow-matcha/10 transition-all duration-500 cursor-pointer transform hover:scale-105"
+      >
+        {/* Icon */}
+        <div className="mb-6 text-charcoal">
+          {icon}
+        </div>
+        
+        {/* Content */}
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-charcoal mb-3 group-hover:text-matcha-dark transition-colors duration-300">
+            {title}
+          </h3>
+          <p className="text-charcoal/70 leading-relaxed text-sm">
+            {description}
+          </p>
+        </div>
+        
+        {/* Learn More Text */}
+        <div className="px-6 py-2 border border-charcoal/30 text-charcoal text-sm font-medium rounded-lg hover:border-matcha hover:text-matcha hover:bg-matcha/5 transition-all duration-300 group-hover:scale-105 inline-block">
+          Learn more
+        </div>
+        
+        {/* Hover glow effect */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-matcha/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      </Link>
     </div>
   );
 };
@@ -420,28 +320,32 @@ export default function SystemsInMotionSection() {
       title: "Web Architecture",
       description: "From frontend pixels to backend pipelines.",
       position: 'top-left' as const,
-      delay: 200
+      delay: 200,
+      link: "/services/web-architecture"
     },
     {
       icon: <TriangleIcon />,
       title: "AI & Automation",
       description: "Code that thinks, predicts, and executes.",
       position: 'top-right' as const,
-      delay: 400
+      delay: 400,
+      link: "/services/ai-automation"
     },
     {
       icon: <SquareIcon />,
-      title: "Cyber Defence",
+      title: "Cyber Security",
       description: "Integrity by default. Audits, protocols, zero trust.",
       position: 'bottom-left' as const,
-      delay: 600
+      delay: 600,
+      link: "/services/cyber-security"
     },
     {
       icon: <InvertedTriangleIcon />,
       title: "Infrastructure & Cloud",
       description: "Scale isn't a goal. It's a requirement.",
       position: 'bottom-right' as const,
-      delay: 800
+      delay: 800,
+      link: "/services/infrastructure-cloud"
     }
   ];
 
@@ -492,27 +396,12 @@ export default function SystemsInMotionSection() {
                 description={service.description}
                 position={service.position}
                 delay={service.delay}
+                link={service.link}
               />
             ))}
           </div>
         </div>
       </div>
-      
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        @keyframes draw-line {
-          from {
-            stroke-dashoffset: inherit;
-          }
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-        
-        .animate-draw-line {
-          animation: draw-line 2s ease-out forwards;
-        }
-      `}</style>
     </section>
   );
 } 

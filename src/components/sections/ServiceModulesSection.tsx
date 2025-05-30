@@ -449,7 +449,7 @@ const DesignDemo = ({ elements, isActive }: { elements: DesignElement[]; isActiv
   );
 };
 
-// Simple Service Card with Normal Hover Effects
+// Enhanced Service Card with Premium Directional Animations
 const ServiceCard = ({
   service,
   index,
@@ -461,82 +461,364 @@ const ServiceCard = ({
 }) => {
   const IconComponent = service.icon;
   
+  // Different animation patterns for each card to create variety
+  const getAnimationPattern = (index: number) => {
+    const patterns = [
+      // Left slide with rotation
+      {
+        initial: { 
+          opacity: 0, 
+          x: -120, 
+          rotateY: -15,
+          scale: 0.9 
+        },
+        animate: { 
+          opacity: 1, 
+          x: 0, 
+          rotateY: 0,
+          scale: 1,
+          transition: {
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+            delay: index * 0.15
+          }
+        }
+      },
+      // Right slide with rotation
+      {
+        initial: { 
+          opacity: 0, 
+          x: 120, 
+          rotateY: 15,
+          scale: 0.9 
+        },
+        animate: { 
+          opacity: 1, 
+          x: 0, 
+          rotateY: 0,
+          scale: 1,
+          transition: {
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+            delay: index * 0.15
+          }
+        }
+      },
+      // Top drop with bounce
+      {
+        initial: { 
+          opacity: 0, 
+          y: -100, 
+          rotateX: 20,
+          scale: 0.8 
+        },
+        animate: { 
+          opacity: 1, 
+          y: 0, 
+          rotateX: 0,
+          scale: 1,
+          transition: {
+            type: "spring",
+            stiffness: 120,
+            damping: 12,
+            delay: index * 0.15
+          }
+        }
+      },
+      // Scale in with rotation
+      {
+        initial: { 
+          opacity: 0, 
+          scale: 0.3, 
+          rotate: -15 
+        },
+        animate: { 
+          opacity: 1, 
+          scale: 1, 
+          rotate: 0,
+          transition: {
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+            delay: index * 0.15
+          }
+        }
+      },
+      // Diagonal slide
+      {
+        initial: { 
+          opacity: 0, 
+          x: -80, 
+          y: 80,
+          rotate: 10,
+          scale: 0.8 
+        },
+        animate: { 
+          opacity: 1, 
+          x: 0, 
+          y: 0,
+          rotate: 0,
+          scale: 1,
+          transition: {
+            duration: 0.9,
+            ease: [0.25, 0.46, 0.45, 0.94],
+            delay: index * 0.15
+          }
+        }
+      }
+    ];
+    
+    return patterns[index % patterns.length];
+  };
+  
+  const animationPattern = getAnimationPattern(index);
+  
   return (
     <motion.div
-      className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer group h-full flex flex-col hover:shadow-lg transition-all duration-300"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.6 }}
+      className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer group h-full flex flex-col transition-all duration-300 relative"
+      initial={animationPattern.initial}
+      whileInView={animationPattern.animate}
+      viewport={{ once: true, amount: 0.3 }}
       whileHover={{ 
-        y: -8,
+        y: -12,
         borderColor: service.color,
+        boxShadow: `0 20px 40px -10px ${service.color}30`,
+        scale: 1.02,
+        transition: { duration: 0.3, ease: "easeOut" }
       }}
       onClick={() => onClick(service)}
+      style={{
+        transformStyle: "preserve-3d",
+      }}
     >
-      {/* Icon Area */}
-      <div className="h-32 p-6 bg-gray-50 flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-          style={{ backgroundColor: service.color }}
-        >
-          <IconComponent size={32} className="text-charcoal" strokeWidth={1.5} />
-        </motion.div>
-      </div>
+      {/* Animated background gradient on hover */}
+      <motion.div
+        className="absolute inset-0 opacity-0 rounded-xl"
+        style={{
+          background: `linear-gradient(135deg, ${service.color}10 0%, ${service.accentColor}05 100%)`,
+        }}
+        whileHover={{
+          opacity: 1,
+          transition: { duration: 0.3 }
+        }}
+      />
       
-      {/* Content */}
-      <div className="p-6 flex-1 flex flex-col">
+      {/* Icon Area with enhanced animations */}
+      <motion.div 
+        className="h-32 p-6 bg-gray-50 flex items-center justify-center relative overflow-hidden"
+        whileHover={{
+          backgroundColor: `${service.color}15`,
+          transition: { duration: 0.3 }
+        }}
+      >
+        {/* Floating particles */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          whileHover={{
+            scale: 1.1,
+            transition: { duration: 0.4 }
+          }}
+        >
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 rounded-full opacity-30"
+              style={{
+                backgroundColor: service.color,
+                left: `${20 + i * 30}%`,
+                top: `${30 + i * 20}%`,
+              }}
+              animate={{
+                y: [-5, 5, -5],
+                opacity: [0.3, 0.8, 0.3],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 3 + i,
+                repeat: Infinity,
+                delay: i * 0.5,
+              }}
+            />
+          ))}
+        </motion.div>
+        
+        <motion.div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center relative z-10"
+          style={{ backgroundColor: service.color }}
+          whileHover={{
+            scale: 1.15,
+            rotate: 5,
+            transition: { type: "spring", stiffness: 200 }
+          }}
+        >
+          <motion.div
+            whileHover={{
+              rotate: -5,
+              scale: 1.1,
+              transition: { duration: 0.2 }
+            }}
+          >
+            <IconComponent size={32} className="text-charcoal" strokeWidth={1.5} />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+      
+      {/* Content with micro-animations */}
+      <motion.div 
+        className="p-6 flex-1 flex flex-col relative z-10"
+        whileHover={{
+          y: -2,
+          transition: { duration: 0.2 }
+        }}
+      >
         {/* Category */}
-        <div className="text-sm font-semibold text-gray-500 mb-2 tracking-wide uppercase">
+        <motion.div 
+          className="text-sm font-semibold text-gray-500 mb-2 tracking-wide uppercase"
+          whileHover={{
+            color: service.color,
+            x: 2,
+            transition: { duration: 0.2 }
+          }}
+        >
           {service.title}
-        </div>
+        </motion.div>
         
         {/* Title */}
-        <h3 className="text-xl font-bold text-charcoal mb-3 leading-tight">
+        <motion.h3 
+          className="text-xl font-bold text-charcoal mb-3 leading-tight"
+          whileHover={{
+            scale: 1.02,
+            x: 3,
+            transition: { duration: 0.2 }
+          }}
+        >
           {service.subtitle}
-        </h3>
+        </motion.h3>
         
         {/* Description */}
-        <p className="text-gray-600 mb-4 flex-1 leading-relaxed">
+        <motion.p 
+          className="text-gray-600 mb-4 flex-1 leading-relaxed"
+          whileHover={{
+            color: "#4B5563",
+            transition: { duration: 0.2 }
+          }}
+        >
           {service.description}
-        </p>
+        </motion.p>
         
-        {/* Stats */}
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center justify-between">
+        {/* Stats with enhanced animations */}
+        <motion.div 
+          className="mb-4 p-3 bg-gray-50 rounded-lg relative overflow-hidden"
+          whileHover={{
+            backgroundColor: `${service.color}10`,
+            scale: 1.02,
+            transition: { duration: 0.3 }
+          }}
+        >
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <div className="text-2xl font-bold text-matcha">{service.stats.metric}</div>
+              <motion.div 
+                className="text-2xl font-bold text-matcha"
+                whileHover={{
+                  scale: 1.1,
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+              >
+                {service.stats.metric}
+              </motion.div>
               <div className="text-sm text-gray-600">{service.stats.label}</div>
             </div>
-            <div className="text-matcha">
+            <motion.div 
+              className="text-matcha"
+              whileHover={{
+                scale: 1.2,
+                rotate: 10,
+                transition: { type: "spring", stiffness: 200 }
+              }}
+            >
               <Eye size={24} />
-            </div>
+            </motion.div>
           </div>
-        </div>
+          
+          {/* Animated background bar */}
+          <motion.div
+            className="absolute bottom-0 left-0 h-1 rounded-full"
+            style={{ backgroundColor: service.color }}
+            initial={{ width: 0 }}
+            whileHover={{
+              width: "100%",
+              transition: { duration: 0.4 }
+            }}
+          />
+        </motion.div>
         
-        {/* Tags */}
+        {/* Tags with staggered animations */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {service.tags.slice(0, 3).map((tag) => (
-            <span
+          {service.tags.slice(0, 3).map((tag, tagIndex) => (
+            <motion.span
               key={tag}
               className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium"
+              whileHover={{
+                backgroundColor: service.color,
+                color: "#1F2937",
+                scale: 1.05,
+                y: -2,
+                transition: { 
+                  type: "spring", 
+                  stiffness: 300,
+                  delay: tagIndex * 0.05
+                }
+              }}
             >
               {tag}
-            </span>
+            </motion.span>
           ))}
           {service.tags.length > 3 && (
-            <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-md text-sm">
+            <motion.span 
+              className="px-3 py-1 bg-gray-100 text-gray-500 rounded-md text-sm"
+              whileHover={{
+                backgroundColor: service.color,
+                color: "#6B7280",
+                scale: 1.05,
+                transition: { type: "spring", stiffness: 300 }
+              }}
+            >
               +{service.tags.length - 3}
-            </span>
+            </motion.span>
           )}
         </div>
         
-        {/* CTA */}
-        <div className="flex items-center text-charcoal font-medium group-hover:text-matcha transition-colors">
+        {/* CTA with enhanced animations */}
+        <motion.div 
+          className="flex items-center text-charcoal font-medium group-hover:text-matcha transition-colors relative"
+          whileHover={{
+            x: 5,
+            transition: { duration: 0.2 }
+          }}
+        >
           <span className="mr-2">View live demo</span>
-          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-        </div>
-      </div>
+          <motion.div
+            whileHover={{
+              x: 3,
+              scale: 1.1,
+              transition: { type: "spring", stiffness: 400 }
+            }}
+          >
+            <ArrowRight size={16} />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+      
+      {/* Animated border on hover */}
+      <motion.div
+        className="absolute inset-0 rounded-xl border-2 opacity-0 pointer-events-none"
+        style={{ borderColor: service.color }}
+        whileHover={{
+          opacity: 1,
+          scale: 1.02,
+          transition: { duration: 0.3 }
+        }}
+      />
     </motion.div>
   );
 };
