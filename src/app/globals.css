@@ -1,26 +1,240 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color System from PRD */
+  --color-ivory: #FAF9F6;
+  --color-matcha: #D9E5C1;
+  --color-matcha-dark: #B8C9A3;
+  --color-charcoal: #1F1F1F;
+  --color-silver: #C4C4C4;
+  --color-gunmetal: #2A2D2E;
+  
+  /* Semantic Colors */
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-error: #F44336;
+  --color-info: #2196F3;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--color-matcha) 0%, var(--color-matcha-dark) 100%);
+  --gradient-dark: linear-gradient(135deg, var(--color-charcoal) 0%, #2C2C2C 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.16);
+  --shadow-matcha: 0 8px 16px rgba(217, 229, 193, 0.3);
+  
+  /* Animation Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+  --duration-slowest: 1000ms;
+  
+  /* Easings */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-silver/20;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "pnum" 1, "tnum" 0, "onum" 1, "lnum" 0, "dlig" 0;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-ivory text-charcoal font-sans;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Typography Base Styles */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans leading-tight;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "pnum" 1, "tnum" 0, "onum" 1, "lnum" 0, "dlig" 0;
+  }
+  
+  h1 {
+    @apply text-6xl md:text-7xl font-bold tracking-hero;
+  }
+  
+  h2 {
+    @apply text-4xl md:text-5xl font-semibold;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-medium;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl font-medium;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg font-medium;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-matcha ring-offset-2 ring-offset-ivory;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-silver/20;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-matcha rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-matcha-dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Button Components */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-gradient-primary text-charcoal font-medium rounded-lg transition-all duration-normal hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-matcha focus-visible:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-matcha text-charcoal font-medium rounded-lg transition-all duration-normal hover:bg-gradient-primary active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-matcha focus-visible:ring-offset-2;
+  }
+  
+  /* Card Components */
+  .card {
+    @apply bg-white border border-silver/20 rounded-xl p-8 transition-all duration-normal hover:shadow-lg hover:-translate-y-2 hover:border-matcha;
+  }
+  
+  /* Form Components */
+  .form-input {
+    @apply w-full px-4 py-3 border border-silver/40 rounded-lg bg-white text-charcoal placeholder-silver transition-all duration-fast focus:border-matcha focus:ring-1 focus:ring-matcha focus:outline-none;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-charcoal mb-2;
+  }
+  
+  /* Animation Utilities */
+  .animate-fade-up {
+    @apply opacity-0 translate-y-8;
+    animation: fade-up 0.8s ease-out forwards;
+  }
+  
+  .animate-stagger-1 {
+    animation-delay: 100ms;
+  }
+  
+  .animate-stagger-2 {
+    animation-delay: 200ms;
+  }
+  
+  .animate-stagger-3 {
+    animation-delay: 300ms;
+  }
+  
+  .animate-stagger-4 {
+    animation-delay: 400ms;
+  }
+  
+  /* Floating particle animation */
+  .animate-float {
+    animation: float-up 20s linear infinite;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(30px);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  /* Text Balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Scrollbar Hide */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-charcoal: #000000;
+    --color-silver: #666666;
+  }
 }
