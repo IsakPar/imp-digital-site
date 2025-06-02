@@ -1,29 +1,35 @@
 'use client';
 
-import { motion, Variants, HTMLMotionProps } from 'framer-motion';
-import { ReactNode, forwardRef, ButtonHTMLAttributes } from 'react';
+import React, { useState, useEffect, forwardRef, ReactNode } from 'react';
+import { DeviceCapabilities, OptimizedAnimations, BundleOptimization } from '@/lib/performance';
 import { cn } from '@/lib/utils';
 
-// Arrow icon component
-const ArrowIcon = ({ className }: { className?: string }) => (
+// Arrow icon optimized for performance - with proper prop handling
+const ArrowIcon = ({ width = "16", height = "16", className = "w-4 h-4 flex-shrink-0" }: { 
+  width?: string; 
+  height?: string; 
+  className?: string; 
+}) => (
   <svg 
-    width="20" 
-    height="20" 
-    viewBox="0 0 20 20" 
+    width={width}
+    height={height}
+    className={className}
+    viewBox="0 0 16 16" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
-    className={className}
+    aria-hidden="true"
   >
     <path 
-      d="M4.16667 10H15.8333M15.8333 10L10.8333 5M15.8333 10L10.8333 15" 
+      d="M3.5 8h9m0 0l-3.5-3.5M12.5 8l-3.5 3.5" 
       stroke="currentColor" 
-      strokeWidth="2" 
+      strokeWidth="1.5" 
       strokeLinecap="round" 
       strokeLinejoin="round"
     />
   </svg>
 );
 
+// Base button props interface
 interface ButtonBaseProps {
   children: ReactNode;
   className?: string;
@@ -34,8 +40,6 @@ interface ButtonBaseProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
-  id?: string;
-  'data-testid'?: string;
 }
 
 interface PrimaryButtonProps extends ButtonBaseProps {
@@ -47,46 +51,61 @@ interface SecondaryButtonProps extends ButtonBaseProps {
   variant: 'secondary';
 }
 
-type ButtonProps = PrimaryButtonProps | SecondaryButtonProps;
+interface ButtonProps extends ButtonBaseProps {
+  variant?: 'primary' | 'secondary';
+  hasArrow?: boolean;
+}
 
-// Animation variants for buttons
-const buttonVariants: Variants = {
-  idle: { 
-    scale: 1,
-    transition: { duration: 0.2, ease: [0, 0, 0.2, 1] }
-  },
-  hover: { 
-    scale: 1.02,
-    transition: { duration: 0.2, ease: [0, 0, 0.2, 1] }
-  },
-  active: { 
-    scale: 0.98,
-    transition: { duration: 0.1, ease: [0, 0, 0.2, 1] }
-  }
-};
+// Performance-optimized button component
+const OptimizedButtonContent = ({ 
+  children, 
+  hasArrow, 
+  shouldAnimate,
+  MotionComponent,
+  isMobile = false
+}: {
+  children: ReactNode;
+  hasArrow?: boolean;
+  shouldAnimate: boolean;
+  MotionComponent: any;
+  isMobile?: boolean;
+}) => {
+  if (!hasArrow) return children;
 
-// Arrow animation variants
-const arrowVariants: Variants = {
-  idle: { 
-    x: 0,
-    transition: { duration: 0.3, ease: [0, 0, 0.2, 1] }
-  },
-  hover: { 
-    x: 4,
-    transition: { duration: 0.3, ease: [0, 0, 0.2, 1] }
+  // Always use static version on mobile for better performance
+  if (!shouldAnimate || !MotionComponent || isMobile) {
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <span>{children}</span>
+        <ArrowIcon />
+      </div>
+    );
   }
-};
 
-// Gap animation for arrow buttons
-const gapVariants: Variants = {
-  idle: { 
-    gap: '8px',
-    transition: { duration: 0.3, ease: [0, 0, 0.2, 1] }
-  },
-  hover: { 
-    gap: '12px', 
-    transition: { duration: 0.3, ease: [0, 0, 0.2, 1] }
-  }
+  // Animated version for high-end desktop devices only
+  const animationLevel = DeviceCapabilities.supportsHighPerformanceAnimations() ? 'high' : 'low';
+  const arrowVariants = OptimizedAnimations.arrow[animationLevel];
+  const gapVariants = {
+    idle: { gap: '8px' },
+    hover: { gap: '12px' }
+  };
+
+  return (
+    <MotionComponent.div 
+      className="flex items-center justify-center"
+      variants={gapVariants}
+      initial="idle"
+      whileHover="hover"
+    >
+      <span>{children}</span>
+      <MotionComponent.div
+        variants={arrowVariants}
+        className="flex items-center"
+      >
+        <ArrowIcon />
+      </MotionComponent.div>
+    </MotionComponent.div>
+  );
 };
 
 // Primary Button Component
@@ -104,70 +123,72 @@ export const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
     type = 'button',
     ...props 
   }, ref) => {
-    
-    const animationProps = animate ? {
-      variants: buttonVariants,
-      initial: "idle" as const,
-      whileHover: !disabled && !loading ? "hover" as const : "idle" as const,
-      whileTap: !disabled && !loading ? "active" as const : "idle" as const,
-      whileFocus: !disabled && !loading ? "hover" as const : "idle" as const
-    } : {};
+    const [MotionComponents, setMotionComponents] = useState<any>(null);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
-    const containerAnimationProps = animate && hasArrow ? {
-      variants: gapVariants,
-      initial: "idle" as const,
-      whileHover: !disabled && !loading ? "hover" as const : "idle" as const
-    } : {};
+    useEffect(() => {
+      setIsMounted(true);
+      
+      // Check if we should animate and load motion components
+      // Disable animations on mobile devices for better performance
+      const canAnimate = animate && 
+                        DeviceCapabilities.supportsHighPerformanceAnimations() && 
+                        !DeviceCapabilities.isMobile();
+      setShouldAnimate(canAnimate);
 
-    const content = hasArrow ? (
-      <motion.div 
-        className="flex items-center justify-center"
-        {...containerAnimationProps}
-      >
-        <span>{children}</span>
-        <motion.div
-          variants={arrowVariants}
-          className="flex items-center"
-        >
-          <ArrowIcon />
-        </motion.div>
-      </motion.div>
-    ) : children;
+      if (canAnimate) {
+        // Dynamically load framer-motion only for high-end desktop devices
+        BundleOptimization.loadFramerMotion().then(components => {
+          setMotionComponents(components);
+        });
+      }
+    }, [animate]);
+
+    // Use safe defaults for server-side rendering, apply actual device checks only after mount
+    const isMobile = isMounted ? DeviceCapabilities.isMobile() : false;
+
+    const baseClassName = cn(
+      // Base styles - exact measurements from PRD
+      "inline-flex items-center justify-center",
+      "px-[40px] py-[20px]", // 20px 40px padding
+      "text-[18px] font-medium", // 18px font size
+      "rounded-[8px]", // 8px border radius
+      "min-h-[60px]", // Ensures consistent height
+      
+      // Background - exact gradient from PRD
+      "bg-gradient-to-br from-[#D9E5C1] to-[#B8C9A3]",
+      "text-charcoal",
+      
+      // Hover effects - only on desktop
+      "hover:bg-gradient-to-br hover:from-[#B8C9A3] hover:to-[#D9E5C1]",
+      
+      // Transitions - optimized for mobile (hydration-safe)
+      isMobile 
+        ? "transition-colors duration-150" 
+        : "transition-all duration-200 ease-out",
+      
+      // Scale effects only on desktop (hydration-safe)
+      !isMobile && shouldAnimate && "hover:scale-105 active:scale-95",
+      
+      // Focus styles for accessibility - 2px offset outline
+      "focus-visible:outline-none",
+      "focus-visible:ring-2 focus-visible:ring-matcha",
+      "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
+      
+      // Disabled states
+      "disabled:opacity-50 disabled:cursor-not-allowed",
+      "disabled:hover:scale-100 disabled:hover:bg-gradient-to-br disabled:hover:from-[#D9E5C1] disabled:hover:to-[#B8C9A3]",
+      
+      // Loading state
+      loading && "cursor-wait",
+      
+      className
+    );
 
     const baseProps = {
       ref,
-      className: cn(
-        // Base styles - exact measurements from PRD
-        "inline-flex items-center justify-center",
-        "px-[40px] py-[20px]", // 20px 40px padding
-        "text-[18px] font-medium", // 18px font size
-        "rounded-[8px]", // 8px border radius
-        "min-h-[60px]", // Ensures consistent height
-        
-        // Background - exact gradient from PRD
-        "bg-gradient-to-br from-[#D9E5C1] to-[#B8C9A3]",
-        "text-charcoal",
-        
-        // Hover effects
-        "hover:bg-gradient-to-br hover:from-[#B8C9A3] hover:to-[#D9E5C1]",
-        
-        // Transitions
-        "transition-all duration-200 ease-out",
-        
-        // Focus styles for accessibility - 2px offset outline
-        "focus-visible:outline-none",
-        "focus-visible:ring-2 focus-visible:ring-matcha",
-        "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
-        
-        // Disabled states
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        "disabled:hover:scale-100 disabled:hover:bg-gradient-to-br disabled:hover:from-[#D9E5C1] disabled:hover:to-[#B8C9A3]",
-        
-        // Loading state
-        loading && "cursor-wait",
-        
-        className
-      ),
+      className: baseClassName,
       disabled: disabled || loading,
       'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined),
       'aria-busy': loading,
@@ -177,30 +198,45 @@ export const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
       ...props
     };
 
-    if (animate) {
+    const content = loading ? (
+      <div className="flex items-center gap-2">
+        <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
+        <span>Loading...</span>
+      </div>
+    ) : (
+      <OptimizedButtonContent 
+        hasArrow={hasArrow}
+        shouldAnimate={shouldAnimate}
+        MotionComponent={MotionComponents}
+        isMobile={isMobile}
+      >
+        {children}
+      </OptimizedButtonContent>
+    );
+
+    // Use framer-motion only for high-end desktop devices
+    if (shouldAnimate && MotionComponents && !disabled && !loading && !isMobile) {
+      const animationLevel = isMounted && DeviceCapabilities.supportsHighPerformanceAnimations() ? 'high' : 'low';
+      const buttonVariants = OptimizedAnimations.button[animationLevel];
+
       return (
-        <motion.button
+        <MotionComponents.motion.button
           {...baseProps}
-          {...animationProps}
+          variants={buttonVariants}
+          initial="idle"
+          whileHover="hover"
+          whileTap="active"
+          whileFocus="hover"
         >
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
-              <span>Loading...</span>
-            </div>
-          ) : content}
-        </motion.button>
+          {content}
+        </MotionComponents.motion.button>
       );
     }
 
+    // Fallback to regular button for mobile and better performance
     return (
       <button {...baseProps}>
-        {loading ? (
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
-            <span>Loading...</span>
-          </div>
-        ) : content}
+        {content}
       </button>
     );
   }
@@ -221,51 +257,69 @@ export const SecondaryButton = forwardRef<HTMLButtonElement, SecondaryButtonProp
     type = 'button',
     ...props 
   }, ref) => {
-    
-    const animationProps = animate ? {
-      variants: buttonVariants,
-      initial: "idle" as const,
-      whileHover: !disabled && !loading ? "hover" as const : "idle" as const,
-      whileTap: !disabled && !loading ? "active" as const : "idle" as const,
-      whileFocus: !disabled && !loading ? "hover" as const : "idle" as const
-    } : {};
+    const [MotionComponents, setMotionComponents] = useState<any>(null);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+      setIsMounted(true);
+      
+      // Check if we should animate and load motion components
+      // Disable animations on mobile devices for better performance
+      const canAnimate = animate && 
+                        DeviceCapabilities.supportsHighPerformanceAnimations() && 
+                        !DeviceCapabilities.isMobile();
+      setShouldAnimate(canAnimate);
+
+      if (canAnimate) {
+        // Dynamically load framer-motion only for high-end desktop devices
+        BundleOptimization.loadFramerMotion().then(components => {
+          setMotionComponents(components);
+        });
+      }
+    }, [animate]);
+
+    // Use safe defaults for server-side rendering, apply actual device checks only after mount
+    const isMobile = isMounted ? DeviceCapabilities.isMobile() : false;
+
+    const baseClassName = cn(
+      // Base styles - exact measurements from PRD
+      "inline-flex items-center justify-center",
+      "px-[40px] py-[20px]", // 20px 40px padding
+      "text-[18px] font-medium", // 18px font size
+      "rounded-[8px]", // 8px border radius
+      "min-h-[60px]", // Ensures consistent height
+      
+      // Secondary button styling - outlined variant
+      "bg-transparent border-2 border-charcoal text-charcoal",
+      "hover:bg-charcoal hover:text-ivory",
+      
+      // Transitions - optimized for mobile (hydration-safe)
+      isMobile 
+        ? "transition-colors duration-150" 
+        : "transition-all duration-200 ease-out",
+      
+      // Scale effects only on desktop (hydration-safe)
+      !isMobile && shouldAnimate && "hover:scale-105 active:scale-95",
+      
+      // Focus styles for accessibility
+      "focus-visible:outline-none",
+      "focus-visible:ring-2 focus-visible:ring-charcoal",
+      "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
+      
+      // Disabled states
+      "disabled:opacity-50 disabled:cursor-not-allowed",
+      "disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:text-charcoal",
+      
+      // Loading state
+      loading && "cursor-wait",
+      
+      className
+    );
 
     const baseProps = {
       ref,
-      className: cn(
-        // Base styles - exact measurements from PRD
-        "inline-flex items-center justify-center",
-        "px-[40px] py-[20px]", // 20px 40px padding
-        "text-[18px] font-medium", // 18px font size
-        "rounded-[8px]", // 8px border radius
-        "min-h-[60px]", // Ensures consistent height
-        
-        // Background and border - transparent with 2px solid border
-        "bg-transparent",
-        "border-2 border-[#D9E5C1]",
-        "text-charcoal",
-        
-        // Hover effects - fill with gradient
-        "hover:bg-gradient-to-br hover:from-[#D9E5C1] hover:to-[#B8C9A3]",
-        "hover:border-transparent",
-        
-        // Transitions
-        "transition-all duration-200 ease-out",
-        
-        // Focus styles for accessibility - 2px offset outline
-        "focus-visible:outline-none",
-        "focus-visible:ring-2 focus-visible:ring-matcha",
-        "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
-        
-        // Disabled states
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        "disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:border-[#D9E5C1]",
-        
-        // Loading state
-        loading && "cursor-wait",
-        
-        className
-      ),
+      className: baseClassName,
       disabled: disabled || loading,
       'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined),
       'aria-busy': loading,
@@ -282,17 +336,26 @@ export const SecondaryButton = forwardRef<HTMLButtonElement, SecondaryButtonProp
       </div>
     ) : children;
 
-    if (animate) {
+    // Use framer-motion only for high-end desktop devices
+    if (shouldAnimate && MotionComponents && !disabled && !loading && !isMobile) {
+      const animationLevel = isMounted && DeviceCapabilities.supportsHighPerformanceAnimations() ? 'high' : 'low';
+      const buttonVariants = OptimizedAnimations.button[animationLevel];
+
       return (
-        <motion.button
+        <MotionComponents.motion.button
           {...baseProps}
-          {...animationProps}
+          variants={buttonVariants}
+          initial="idle"
+          whileHover="hover"
+          whileTap="active"
+          whileFocus="hover"
         >
           {content}
-        </motion.button>
+        </MotionComponents.motion.button>
       );
     }
 
+    // Fallback to regular button for mobile and better performance
     return (
       <button {...baseProps}>
         {content}

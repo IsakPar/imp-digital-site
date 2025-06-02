@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from './Logo';
 
 interface FooterLink {
@@ -11,6 +11,46 @@ interface FooterLink {
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to subscribe');
+      }
+
+      setIsSubscribed(true);
+      setEmail('');
+      
+      // Reset success state after 3 seconds
+      setTimeout(() => {
+        setIsSubscribed(false);
+      }, 3000);
+
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      alert('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const footerLinks: Record<string, FooterLink[]> = {
     Services: [
@@ -20,7 +60,7 @@ const Footer: React.FC = () => {
       { label: 'Cloud Solutions', href: '#services' },
     ],
     Company: [
-      { label: 'About Us', href: '#about' },
+      { label: 'About Us', href: '/about' },
       { label: 'Our Work', href: '#work' },
       { label: 'Case Studies', href: '#work' },
       { label: 'Contact', href: '#contact' },
@@ -48,7 +88,7 @@ const Footer: React.FC = () => {
               color="#FAF9F6"
             />
             <p className="mt-6 text-ivory/70 leading-relaxed max-w-sm">
-              Scandinavian precision meets enterprise power. We deliver digital excellence from concept to deployment.
+              Scaninavian precision meets enterprise power. We deliver digital excellence from concept to deployment.
             </p>
             
             {/* Contact Info */}
@@ -113,19 +153,30 @@ const Footer: React.FC = () => {
             <p className="text-ivory/70 mb-6">
               Get insights on digital transformation and development best practices.
             </p>
-            <form className="flex gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-ivory/10 border border-ivory/20 rounded-lg text-ivory placeholder-ivory/50 focus:outline-none focus:ring-2 focus:ring-matcha focus:border-transparent transition-all duration-200"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 bg-matcha hover:bg-matcha-dark text-charcoal font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-matcha focus:ring-offset-2 focus:ring-offset-charcoal"
-              >
-                Subscribe
-              </button>
-            </form>
+            {isSubscribed ? (
+              <div className="p-4 bg-matcha/20 border border-matcha/30 rounded-lg">
+                <p className="text-matcha font-medium">✓ Successfully subscribed!</p>
+              </div>
+            ) : (
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-3 bg-ivory/10 border border-ivory/20 rounded-lg text-ivory placeholder-ivory/50 focus:outline-none focus:ring-2 focus:ring-matcha focus:border-transparent transition-all duration-200 disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-3 bg-matcha hover:bg-matcha-dark text-charcoal font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-matcha focus:ring-offset-2 focus:ring-offset-charcoal disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+                >
+                  {isSubmitting ? 'Sending...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

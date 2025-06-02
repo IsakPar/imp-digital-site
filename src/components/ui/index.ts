@@ -3,6 +3,7 @@ export { default as Section } from './Section';
 export { default as Container } from './Container';
 export { default as Logo } from './Logo';
 export { default as Footer } from './Footer';
+export { default as OptimizedImage } from './OptimizedImage';
 
 // Typography Components
 export { H1, H2, H3, H4, H5, H6, Paragraph, TextBalance } from './Typography';

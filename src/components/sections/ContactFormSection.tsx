@@ -239,6 +239,7 @@ export default function ContactFormSection() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string>('');
   const [isMounted, setIsMounted] = useState(false);
   
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -260,24 +261,43 @@ export default function ContactFormSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(''); // Clear any previous errors
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        message: '',
-        projectType: ''
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message');
+      }
+
+      setIsSubmitted(true);
+      
+      // Reset form after 5 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          message: '',
+          projectType: ''
+        });
+      }, 5000);
+
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -422,6 +442,20 @@ export default function ContactFormSection() {
                     </>
                   )}
                 </motion.button>
+
+                {/* Error Display */}
+                {error && (
+                  <motion.div
+                    className="p-4 bg-red-50 border border-red-200 rounded-xl"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <p className="text-red-600 text-sm font-medium">
+                      ⚠️ {error}
+                    </p>
+                  </motion.div>
+                )}
               </form>
             ) : (
               // Success state

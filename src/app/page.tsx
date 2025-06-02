@@ -1,33 +1,49 @@
+'use client';
+
 import HeroSection from "@/components/sections/HeroSection";
 import WhoWeAreSection from "@/components/sections/WhoWeAreSection";
-import ServiceModulesSection from "@/components/sections/ServiceModulesSection";
 import SystemsInMotionSection from "@/components/sections/SystemsInMotionSection";
-import AdvantageSection from "@/components/sections/AdvantageSection";
 import CaseStudiesSection from "@/components/sections/CaseStudiesSection";
-import ContactFormSection from "@/components/sections/ContactFormSection";
-import { ScrollProgress } from "@/components/animations/ScrollProgress";
+import AdvantageSection from "@/components/sections/AdvantageSection";
+import ServiceModulesSection from "@/components/sections/ServiceModulesSection";
+import CTASection from "@/components/sections/CTASection";
 import { NavigationBar, Footer } from "@/components/ui";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-ivory text-charcoal">
       <NavigationBar />
-      <ScrollProgress />
-      <HeroSection />
-      <div id="about">
-        <WhoWeAreSection />
-      </div>
-      <div id="services">
-        <ServiceModulesSection />
-        <SystemsInMotionSection />
-      </div>
-      <AdvantageSection />
-      <div id="work">
-        <CaseStudiesSection />
-      </div>
-      <div id="contact">
-        <ContactFormSection />
-      </div>
+      
+      <main>
+        <section className="min-h-screen" id="hero">
+          <HeroSection />
+        </section>
+        
+        <section id="about" className="min-h-screen">
+          <WhoWeAreSection />
+        </section>
+        
+        <section id="advantages" className="min-h-screen">
+          <AdvantageSection />
+        </section>
+
+        <section id="systems-motion" className="min-h-screen">
+          <SystemsInMotionSection />
+        </section>
+
+        <section id="services" className="min-h-screen">
+          <ServiceModulesSection />
+        </section>
+
+        <section id="work" className="min-h-screen">
+          <CaseStudiesSection />
+        </section>
+        
+        <section id="contact" className="min-h-screen">
+          <CTASection />
+        </section>
+      </main>
+      
       <Footer />
     </div>
   );

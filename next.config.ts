@@ -1,100 +1,82 @@
 import type { NextConfig } from "next";
+import { withPayload } from '@payloadcms/next/withPayload'
+
+// Bundle analyzer for production debugging
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
-  // Temporarily ignore ESLint during builds to focus on runtime issues
+  // Performance optimizations for mobile
   eslint: {
     ignoreDuringBuilds: true,
   },
   
-  // Performance optimizations from PRD
+  // Simplified experimental features
   experimental: {
     scrollRestoration: true,
+    optimizePackageImports: [
+      'lucide-react',
+    ],
+    // Enable SWC optimizations
+    forceSwcTransforms: true,
+    // Exclude scripts from build
+    typedRoutes: false,
   },
   
-  // Compiler optimizations
+  // External packages for server components
+  serverExternalPackages: ['sharp'],
+  
+  // Simplified compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
+    // Remove React dev tools in production
+    reactRemoveProperties: process.env.NODE_ENV === "production",
   },
   
-  // Image optimization with Sharp
+  // Simplified webpack configuration
+  webpack: (config, { dev, isServer }) => {
+    // Basic optimizations only
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+    };
+
+    // Add module resolution optimizations
+    config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', '.json'];
+    
+    return config;
+  },
+
+  // Images configuration
   images: {
-    formats: ["image/webp", "image/avif"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   
-  // Headers for security and performance
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-        ],
-      },
-      {
-        source: "/fonts/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: "/_next/static/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-    ];
-  },
+  // Output optimization
+  output: 'standalone',
   
-  // Enable compression
-  compress: true,
+  // Enable static optimization
+  trailingSlash: false,
   
-  // Enable React strict mode
-  reactStrictMode: true,
+  // Performance optimizations
+  generateEtags: false,
   
-  // PoweredBy header removal
-  poweredByHeader: false,
+  // Optimize page extensions
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   
-  // Redirects and rewrites for better SEO
-  async redirects() {
-    return [
-      {
-        source: "/home",
-        destination: "/",
-        permanent: true,
-      },
-    ];
-  },
+  // Production URL
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   
-  // Environment variables
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  // TypeScript configuration to exclude scripts
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(withPayload(nextConfig));

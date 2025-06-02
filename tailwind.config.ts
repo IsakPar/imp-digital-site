@@ -171,6 +171,47 @@ const config: Config = {
             opacity: '0',
           },
         },
+        // Hero-specific animations
+        'float-up': {
+          '0%': {
+            transform: 'translateY(100vh) rotate(0deg)',
+            opacity: '0',
+          },
+          '10%': {
+            opacity: '1',
+          },
+          '90%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translateY(-100vh) rotate(360deg)',
+            opacity: '0',
+          },
+        },
+        'slow-spin': {
+          'from': {
+            transform: 'rotate(0deg)',
+          },
+          'to': {
+            transform: 'rotate(360deg)',
+          },
+        },
+        'draw-line': {
+          'to': {
+            'stroke-dashoffset': '0',
+          },
+        },
+        // Advantage section animations
+        'float-slow': {
+          '0%, 100%': {
+            transform: 'translateY(0px) rotate(0deg)',
+            opacity: '0.3',
+          },
+          '50%': {
+            transform: 'translateY(-20px) rotate(180deg)',
+            opacity: '0.8',
+          },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.8s ease-out',
@@ -178,6 +219,13 @@ const config: Config = {
         'slide-up': 'slide-up 0.5s ease-out',
         'pulse-matcha': 'pulse-matcha 2s ease-in-out infinite',
         'success-ripple': 'success-ripple 0.6s ease-out',
+        // Hero-specific animations
+        'hero-float-up': 'float-up 15s linear infinite',
+        'hero-slow-spin': 'slow-spin 20s linear infinite',
+        'hero-float': 'float-up 15s linear infinite',
+        'hero-draw-line': 'draw-line 2s ease-out forwards',
+        // Advantage section animations
+        'advantage-float-slow': 'float-slow 8s ease-in-out infinite',
       },
     },
   },

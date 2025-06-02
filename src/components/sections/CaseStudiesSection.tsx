@@ -1,12 +1,13 @@
 'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence, PanInfo } from 'framer-motion';
-import { ArrowRight, Play, Pause } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { ArrowRight, Play, Pause, Clock, User, Tag, Heart, BookOpen, TrendingUp, Award } from 'lucide-react';
 import { caseStudies, CaseStudy } from '@/data/caseStudies';
 import { H2, Paragraph } from '@/components/ui';
 
-// Individual Case Study Card Component with Premium Animations
-const CaseStudyCard = ({ 
+// Enhanced Case Study Story Card Component
+const CaseStudyStoryCard = ({ 
   study, 
   index, 
   isActive,
@@ -19,347 +20,167 @@ const CaseStudyCard = ({
   onClick: () => void;
   cardWidth?: number;
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "center center"]
-  });
-  
-  const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.8, 1]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.95, 1]);
+  const [isLiked, setIsLiked] = useState(false);
+  const readTime = 3 + (index % 5); // 3-7 min read time based on index
 
-  // Different entrance patterns for variety
-  const getEntranceAnimation = (index: number) => {
-    const patterns = [
-      // Flip in from left
-      {
-        initial: { 
-          opacity: 0, 
-          rotateY: -90, 
-          x: -50,
-          scale: 0.8 
-        },
-        animate: { 
-          opacity: 1, 
-          rotateY: 0, 
-          x: 0,
-          scale: 1,
-          transition: {
-            duration: 0.8,
-            ease: [0.25, 0.46, 0.45, 0.94],
-            delay: index * 0.1
-          }
-        }
-      },
-      // Scale and rotate in
-      {
-        initial: { 
-          opacity: 0, 
-          scale: 0.3, 
-          rotate: 20 
-        },
-        animate: { 
-          opacity: 1, 
-          scale: 1, 
-          rotate: 0,
-          transition: {
-            type: "spring",
-            stiffness: 120,
-            damping: 10,
-            delay: index * 0.1
-          }
-        }
-      },
-      // Slide in from bottom with rotation
-      {
-        initial: { 
-          opacity: 0, 
-          y: 100, 
-          rotateX: 45,
-          scale: 0.9 
-        },
-        animate: { 
-          opacity: 1, 
-          y: 0, 
-          rotateX: 0,
-          scale: 1,
-          transition: {
-            duration: 0.7,
-            ease: [0.22, 1, 0.36, 1],
-            delay: index * 0.1
-          }
-        }
-      }
-    ];
-    
-    return patterns[index % patterns.length];
+  // Blog-style metadata
+  const getInsightTag = (index: number) => {
+    const tags = ['Innovation', 'Scale', 'Security', 'Performance', 'User Experience'];
+    return tags[index % tags.length];
   };
 
-  const entrancePattern = getEntranceAnimation(index);
+  const getAuthor = (index: number) => {
+    const authors = [
+      { name: 'Sarah Digital', role: 'Lead Architect', avatar: '👩‍💻' },
+      { name: 'Marcus Code', role: 'Senior Engineer', avatar: '👨‍💻' },
+      { name: 'Elena Design', role: 'UX Director', avatar: '👩‍🎨' },
+      { name: 'Alex Strategy', role: 'Technical Lead', avatar: '👨‍🔬' },
+      { name: 'Maya Innovation', role: 'Product Manager', avatar: '👩‍🚀' }
+    ];
+    return authors[index % authors.length];
+  };
+
+  const author = getAuthor(index);
+  const insightTag = getInsightTag(index);
 
   return (
-    <motion.article
-      ref={cardRef}
-      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer relative"
+    <article
+      className="flex-shrink-0 bg-white rounded-3xl overflow-hidden shadow-lg group cursor-pointer relative border border-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-500"
       style={{ 
-        y, 
-        opacity, 
-        scale,
         width: `${cardWidth}px`,
-        transformStyle: "preserve-3d"
-      }}
-      initial={entrancePattern.initial}
-      animate={entrancePattern.animate}
-      whileHover={{ 
-        y: -15,
-        scale: 1.03,
-        rotateY: isActive ? 0 : 2,
-        boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
-        transition: { 
-          duration: 0.4,
-          ease: "easeOut"
-        }
       }}
       onClick={onClick}
     >
-      {/* Animated gradient overlay */}
-      <motion.div
-        className="absolute inset-0 opacity-0 rounded-2xl"
-        style={{
-          background: `linear-gradient(135deg, ${study.color}20 0%, ${study.color}10 50%, transparent 100%)`
-        }}
-        whileHover={{
-          opacity: 1,
-          transition: { duration: 0.3 }
-        }}
-      />
-
-      {/* Thumbnail with enhanced effects */}
-      <div className="relative overflow-hidden h-56">
-        <motion.img
-          src={study.project.thumbnail}
-          alt={study.project.title}
-          className="w-full h-full object-cover"
-          whileHover={{ 
-            scale: 1.08,
-            transition: { duration: 0.6, ease: 'easeOut' }
-          }}
-        />
-        
-        {/* Animated gradient overlay */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-          whileHover={{
-            background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent, transparent)",
-            transition: { duration: 0.3 }
-          }}
-        />
-        
-        {/* Floating particles overlay */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none overflow-hidden"
-          whileHover={{
-            opacity: 1,
-            transition: { duration: 0.4 }
-          }}
-          initial={{ opacity: 0 }}
-        >
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/40 rounded-full"
-              style={{
-                left: `${10 + i * 20}%`,
-                top: `${20 + (i % 3) * 25}%`,
-              }}
-              animate={{
-                y: [-5, 5, -5],
-                opacity: [0.4, 0.8, 0.4],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 2 + i * 0.5,
-                repeat: Infinity,
-                delay: i * 0.3,
-              }}
-            />
-          ))}
-        </motion.div>
-        
-        {/* Client logo with enhanced animation */}
-        <motion.div 
-          className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2"
-          whileHover={{
-            scale: 1.05,
-            backgroundColor: "rgba(255,255,255,0.95)",
-            y: -2,
-            transition: { duration: 0.2 }
-          }}
-        >
-          <span className="font-semibold text-charcoal">{study.client.name}</span>
-        </motion.div>
-        
-        {/* Industry tag with animation */}
-        <motion.div 
-          className="absolute top-4 left-4"
-          whileHover={{
-            scale: 1.1,
-            y: -2,
-            transition: { type: "spring", stiffness: 300 }
-          }}
-        >
+      {/* Blog-style header with metadata */}
+      <div className="p-6 pb-0">
+        <div className="flex items-center justify-between mb-4">
           <span 
-            className="px-3 py-1 rounded-full text-sm font-medium text-charcoal/80 backdrop-blur-sm"
+            className="px-3 py-1 rounded-full text-xs font-semibold text-white"
             style={{ backgroundColor: study.color }}
           >
-            {study.client.industry}
+            {insightTag}
           </span>
-        </motion.div>
-
-        {/* Hover play button */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ opacity: 0, scale: 0.5 }}
-          whileHover={{
-            opacity: 1,
-            scale: 1,
-            transition: { duration: 0.3 }
-          }}
-        >
-          <motion.div
-            className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center"
-            whileHover={{
-              scale: 1.1,
-              backgroundColor: "rgba(255,255,255,0.3)",
-              transition: { duration: 0.2 }
+          <button
+            className={`p-2 rounded-full transition-colors hover:scale-110 ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLiked(!isLiked);
             }}
           >
-            <Play size={24} className="text-white ml-1" />
-          </motion.div>
-        </motion.div>
-      </div>
-      
-      {/* Content with micro-animations */}
-      <motion.div 
-        className="p-6 relative z-10"
-        whileHover={{
-          y: -3,
-          transition: { duration: 0.2 }
-        }}
-      >
-        <motion.h3 
-          className="text-xl font-bold text-charcoal mb-2 leading-tight"
-          whileHover={{
-            color: study.color,
-            x: 2,
-            transition: { duration: 0.2 }
-          }}
-        >
-          {study.project.title}
-        </motion.h3>
-        
-        <motion.p 
-          className="text-gray-600 mb-4 leading-relaxed"
-          whileHover={{
-            color: "#4B5563",
-            transition: { duration: 0.2 }
-          }}
-        >
-          {study.project.description}
-        </motion.p>
-        
-        {/* Results with enhanced animations */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {study.project.metrics.slice(0, 2).map((metric, metricIndex) => (
-            <motion.div 
-              key={metricIndex}
-              className="text-center p-3 bg-gray-50 rounded-lg relative overflow-hidden"
-              whileHover={{
-                backgroundColor: `${study.color}10`,
-                scale: 1.02,
-                transition: { duration: 0.3 }
-              }}
-            >
-              <motion.div 
-                className="text-lg font-bold"
-                style={{ color: study.color }}
-                whileHover={{
-                  scale: 1.1,
-                  transition: { type: "spring", stiffness: 300 }
-                }}
-              >
-                {metric.value}
-              </motion.div>
-              <div className="text-xs text-gray-600 font-medium">{metric.label}</div>
-              
-              {/* Animated progress bar */}
-              <motion.div
-                className="absolute bottom-0 left-0 h-1 rounded-full"
-                style={{ backgroundColor: study.color }}
-                initial={{ width: 0 }}
-                whileHover={{
-                  width: "100%",
-                  transition: { duration: 0.4 }
-                }}
-              />
-            </motion.div>
-          ))}
+            <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+          </button>
         </div>
+
+        {/* Author info */}
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-matcha to-matcha-dark flex items-center justify-center text-white text-lg mr-3">
+            {author.avatar}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-charcoal">{author.name}</p>
+            <p className="text-xs text-gray-500">{author.role}</p>
+          </div>
+          <div className="ml-auto flex items-center text-xs text-gray-500">
+            <Clock size={12} className="mr-1" />
+            {readTime} min read
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced image with overlay content */}
+      <div className="relative overflow-hidden h-48 mx-6 rounded-2xl group">
+        <img
+          src={study.project.thumbnail}
+          alt={study.project.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-600"
+        />
         
-        {/* CTA with enhanced animation */}
-        <motion.div 
-          className="flex items-center justify-between pt-4 border-t border-gray-100"
-          whileHover={{
-            paddingTop: "18px",
-            transition: { duration: 0.2 }
-          }}
-        >
-          <motion.span 
-            className="text-sm text-gray-500"
-            whileHover={{
-              color: study.color,
-              transition: { duration: 0.2 }
-            }}
-          >
-            2024
-          </motion.span>
-          <motion.div 
-            className="flex items-center text-charcoal font-medium group-hover:text-matcha transition-colors"
-            whileHover={{
-              x: 3,
-              transition: { duration: 0.2 }
-            }}
-          >
-            <span className="mr-2 text-sm">View case</span>
-            <motion.div
-              whileHover={{
-                x: 2,
-                scale: 1.1,
-                transition: { type: "spring", stiffness: 400 }
-              }}
-            >
-              <ArrowRight size={14} />
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        
+        {/* Client badge */}
+        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 hover:scale-105 hover:bg-white transition-all duration-200">
+          <span className="font-semibold text-charcoal text-sm">{study.client.name}</span>
+        </div>
+      </div>
+
+      {/* Blog-style content */}
+      <div className="p-6 pt-4">
+        {/* Title */}
+        <h3 className="text-xl font-bold text-charcoal mb-3 leading-tight group-hover:text-matcha transition-colors">
+          {study.project.title}
+        </h3>
+        
+        {/* Story excerpt */}
+        <p className="text-gray-600 mb-4 leading-relaxed text-sm">
+          {study.project.description}
+        </p>
+
+        {/* Key insights preview */}
+        <div className="mb-6">
+          <h4 className="text-sm font-semibold text-charcoal mb-2 flex items-center">
+            <BookOpen size={14} className="mr-2 text-matcha" />
+            Key Insights
+          </h4>
+          <div className="grid grid-cols-3 gap-3">
+            {study.project.metrics.slice(0, 3).map((metric, idx) => (
+              <div
+                key={idx}
+                className="text-center p-2 bg-gray-50 rounded-lg hover:scale-105 hover:bg-opacity-80 transition-all duration-200"
+              >
+                <div className="text-lg font-bold text-matcha">{metric.value}</div>
+                <div className="text-xs text-gray-600">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Technology stack */}
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold text-charcoal mb-2 flex items-center">
+            <TrendingUp size={14} className="mr-2 text-matcha" />
+            Tech Stack
+          </h4>
+          <div className="flex flex-wrap gap-1">
+            {study.technologies.slice(0, 4).map((tech, idx) => (
+              <span
+                key={idx}
+                className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium hover:scale-105 hover:bg-gray-200 transition-all duration-200"
+              >
+                {tech}
+              </span>
+            ))}
+            {study.technologies.length > 4 && (
+              <span className="px-2 py-1 text-gray-500 text-xs">
+                +{study.technologies.length - 4} more
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Blog-style CTA */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center text-xs text-gray-500">
+            <Award size={12} className="mr-1" />
+            <span>Featured Story</span>
+          </div>
+          <div className="flex items-center text-charcoal font-medium group-hover:text-matcha transition-colors">
+            <span className="mr-2 text-sm">Read Story</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+          </div>
+        </div>
+      </div>
 
       {/* Animated border effect */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl border-2 opacity-0 pointer-events-none"
+      <div
+        className="absolute inset-0 rounded-3xl border-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{ borderColor: study.color }}
-        whileHover={{
-          opacity: 1,
-          scale: 1.01,
-          transition: { duration: 0.3 }
-        }}
       />
-    </motion.article>
+    </article>
   );
 };
 
-// Progress Indicator Component
+// Enhanced Carousel Progress
 const CarouselProgress = ({ 
   current, 
   total, 
@@ -372,60 +193,51 @@ const CarouselProgress = ({
   onTogglePlay: () => void;
 }) => {
   return (
-    <div className="flex justify-center items-center mt-12 gap-4">
-      {/* Play/Pause button */}
+    <div className="flex items-center justify-center mt-12 space-x-8">
+      {/* Story navigation dots */}
+      <div className="flex space-x-3">
+        {Array.from({ length: total }).map((_, index) => (
+          <div
+            key={index}
+            className={`w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 ${
+              index === current ? 'bg-matcha scale-125' : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Play/Pause */}
       <button
         onClick={onTogglePlay}
-        className="p-3 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-300 group"
-        aria-label={isPlaying ? 'Pause carousel' : 'Play carousel'}
+        className="flex items-center justify-center w-12 h-12 bg-matcha text-white rounded-full hover:bg-matcha-dark hover:scale-110 transition-all duration-300"
       >
-        {isPlaying ? (
-          <Pause size={20} className="text-charcoal group-hover:text-gray-600" />
-        ) : (
-          <Play size={20} className="text-charcoal group-hover:text-gray-600 ml-1" />
-        )}
+        {isPlaying ? <Pause size={20} /> : <Play size={20} />}
       </button>
       
-      {/* Progress dots */}
-      <div className="flex gap-2">
-        {Array.from({ length: total }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="h-1 bg-gray-200 rounded-full overflow-hidden"
-            style={{ width: i === current ? '40px' : '20px' }}
-            animate={{ width: i === current ? '40px' : '20px' }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="h-full bg-gradient-to-r from-matcha to-matcha-dark"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: i === current && isPlaying ? 1 : 0 }}
-              transition={{ 
-                duration: isPlaying ? 4 : 0, 
-                ease: "linear",
-                repeat: i === current && isPlaying ? Infinity : 0
-              }}
-              style={{ transformOrigin: 'left' }}
-            />
-          </motion.div>
-        ))}
+      {/* Story counter */}
+      <div className="text-sm text-gray-500 min-w-[60px] text-center">
+        Story {current + 1} of {total}
       </div>
     </div>
   );
 };
 
-// Main Case Studies Section
+// Main Section - Work That Speaks
 export default function CaseStudiesSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [dragOffset, setDragOffset] = useState(0);
   const [cardWidth, setCardWidth] = useState(420);
   const [isMounted, setIsMounted] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
 
-  // Handle client-side mounting to prevent hydration issues
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -437,11 +249,11 @@ export default function CaseStudiesSection() {
     const updateCardWidth = () => {
       const width = window.innerWidth;
       if (width < 640) {
-        setCardWidth(320); // Mobile
+        setCardWidth(340);
       } else if (width < 768) {
-        setCardWidth(356); // Small tablet
+        setCardWidth(380);
       } else {
-        setCardWidth(420); // Desktop
+        setCardWidth(450);
       }
     };
 
@@ -458,7 +270,7 @@ export default function CaseStudiesSection() {
     if (isPlaying && !isHovered) {
       timeoutRef.current = setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % caseStudies.length);
-      }, 4000);
+      }, 5000);
     }
   }, [isPlaying, isHovered]);
 
@@ -471,25 +283,11 @@ export default function CaseStudiesSection() {
     };
   }, [resetAutoPlay]);
 
-  // Handle drag end
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 100;
-    const offset = info.offset.x;
-    
-    if (offset > threshold && currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    } else if (offset < -threshold && currentIndex < caseStudies.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    }
-    setDragOffset(0);
-  };
-
   const togglePlayState = () => {
     setIsPlaying(prev => !prev);
   };
 
   const handleCardClick = (study: CaseStudy) => {
-    // Navigate to case study detail page
     if (isMounted) {
       window.location.href = study.cta.url;
     }
@@ -515,94 +313,183 @@ export default function CaseStudiesSection() {
   }, [currentIndex, isMounted]);
 
   return (
-    <section className="py-32 bg-gradient-to-b from-white to-ivory overflow-hidden" suppressHydrationWarning>
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <motion.div
-          className="text-left mb-16 max-w-3xl"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+    <section ref={sectionRef} className="py-24 bg-gradient-to-br from-ivory via-[#F8F6F1] to-[#F5F3EE] overflow-hidden">
+      <div ref={ref} className="container mx-auto px-6">
+        {/* Enhanced Section Header with Animations */}
+        <motion.div 
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 60 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <H2 className="mb-6" delay={0.1}>
-            Work That Speaks
-          </H2>
-          <Paragraph className="text-xl text-gray-600 leading-relaxed" animate delay={0.2}>
-            Transforming ambitious ideas into digital reality. Every project tells a story 
-            of innovation, precision, and measurable impact.
-          </Paragraph>
+          <motion.h2 
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-charcoal mb-6 leading-tight"
+            style={{ 
+              fontFamily: 'Space Grotesk, sans-serif',
+              letterSpacing: '-0.02em'
+            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            whileHover={{
+              scale: 1.02,
+              transition: { duration: 0.2 }
+            }}
+          >
+            SUCCESS{' '}
+            <span className="bg-gradient-to-r from-matcha to-matcha-dark bg-clip-text text-transparent">
+              STORIES
+            </span>
+          </motion.h2>
+          
+          <motion.p 
+            className="text-xl text-charcoal/70 max-w-3xl mx-auto leading-relaxed mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            whileHover={{
+              color: 'rgba(47, 47, 47, 0.9)',
+              scale: 1.01,
+              transition: { duration: 0.2 }
+            }}
+          >
+            Real challenges. Engineered solutions. Measurable impact.
+            Discover how we transform complex problems into scalable digital excellence.
+          </motion.p>
+
+          {/* Animated Story Counter */}
+          <motion.div 
+            className="flex items-center justify-center gap-6 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <motion.div 
+              className="text-center"
+              whileHover={{
+                scale: 1.05,
+                transition: { duration: 0.2 }
+              }}
+            >
+              <div className="text-3xl font-bold text-matcha">{caseStudies.length}</div>
+              <div className="text-sm text-charcoal/60">Success Stories</div>
+            </motion.div>
+            <div className="w-px h-12 bg-charcoal/20"></div>
+            <motion.div 
+              className="text-center"
+              whileHover={{
+                scale: 1.05,
+                transition: { duration: 0.2 }
+              }}
+            >
+              <div className="text-3xl font-bold text-matcha">95%</div>
+              <div className="text-sm text-charcoal/60">Client Satisfaction</div>
+            </motion.div>
+            <div className="w-px h-12 bg-charcoal/20"></div>
+            <motion.div 
+              className="text-center"
+              whileHover={{
+                scale: 1.05,
+                transition: { duration: 0.2 }
+              }}
+            >
+              <div className="text-3xl font-bold text-matcha">∞</div>
+              <div className="text-sm text-charcoal/60">Ongoing Partnerships</div>
+            </motion.div>
+          </motion.div>
         </motion.div>
 
-        {/* Carousel Container */}
-        <div className="relative -mx-6 md:mx-0">
-          <motion.div
-            ref={carouselRef}
-            className="flex gap-6 md:gap-8 cursor-grab active:cursor-grabbing px-6 md:px-0"
-            drag="x"
-            dragConstraints={{
-              left: -(caseStudies.length - 1) * (cardWidth + 32),
-              right: 0
+        {/* Animated Carousel Introduction */}
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <motion.div 
+            className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 border border-matcha/20"
+            whileHover={{
+              scale: 1.05,
+              borderColor: 'rgba(184, 201, 163, 0.4)',
+              boxShadow: "0 10px 25px -5px rgba(184, 201, 163, 0.2)",
+              transition: { duration: 0.3 }
             }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            animate={{ 
-              x: -currentIndex * (cardWidth + 32) + dragOffset 
-            }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
-              damping: 30 
-            }}
-            style={{ width: 'max-content' }}
           >
-            {caseStudies.map((study, index) => (
-              <CaseStudyCard
-                key={study.id}
-                study={study}
-                index={index}
-                isActive={index === currentIndex}
-                onClick={() => handleCardClick(study)}
-                cardWidth={cardWidth}
-              />
-            ))}
-          </motion.div>
-
-          {/* Navigation dots and controls */}
-          <CarouselProgress
-            current={currentIndex}
-            total={caseStudies.length}
-            isPlaying={isPlaying}
-            onTogglePlay={togglePlayState}
-          />
-        </div>
-
-        {/* Optional testimonial display */}
-        <AnimatePresence mode="wait">
-          {caseStudies[currentIndex]?.testimonial && (
+            <BookOpen size={16} className="text-matcha" />
+            <span className="text-sm font-medium text-charcoal">Interactive Case Studies</span>
             <motion.div
-              key={currentIndex}
-              className="text-center mt-16 max-w-4xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             >
-              <blockquote className="text-2xl text-charcoal italic mb-6">
-                "{caseStudies[currentIndex].testimonial!.quote}"
-              </blockquote>
-              <div className="text-gray-600">
-                <span className="font-semibold">
-                  {caseStudies[currentIndex].testimonial!.author}
-                </span>
-                <span className="mx-2">•</span>
-                <span>{caseStudies[currentIndex].testimonial!.role}</span>
-              </div>
+              <TrendingUp size={14} className="text-matcha" />
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
+        </motion.div>
+
+        {/* Stories Carousel */}
+        <motion.div 
+          className="relative mb-16"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 0.8, delay: 1.0 }}
+        >
+          <div className="relative -mx-6 md:mx-0">
+            <div
+              ref={carouselRef}
+              className="flex gap-8 px-6 md:px-0 transition-transform duration-500"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              style={{ 
+                transform: `translateX(-${currentIndex * (cardWidth + 32)}px)`,
+                width: 'max-content' 
+              }}
+            >
+              {caseStudies.map((study, index) => (
+                <CaseStudyStoryCard
+                  key={study.id}
+                  study={study}
+                  index={index}
+                  isActive={index === currentIndex}
+                  onClick={() => handleCardClick(study)}
+                  cardWidth={cardWidth}
+                />
+              ))}
+            </div>
+
+            {/* Navigation */}
+            <CarouselProgress
+              current={currentIndex}
+              total={caseStudies.length}
+              isPlaying={isPlaying}
+              onTogglePlay={togglePlayState}
+            />
+          </div>
+        </motion.div>
+
+        {/* Testimonial display */}
+        {caseStudies[currentIndex]?.testimonial && (
+          <div className="text-center mt-20 max-w-5xl mx-auto">
+            <div className="bg-gradient-to-r from-gray-50 to-ivory/50 rounded-3xl p-8 md:p-12 border border-gray-100">
+              <div className="text-6xl text-matcha/20 mb-4">"</div>
+              <blockquote className="text-2xl md:text-3xl text-charcoal italic mb-8 leading-relaxed font-light">
+                {caseStudies[currentIndex].testimonial!.quote}
+              </blockquote>
+              <div className="flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-matcha to-matcha-dark rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                  {caseStudies[currentIndex].testimonial!.author.charAt(0)}
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-charcoal text-lg">
+                    {caseStudies[currentIndex].testimonial!.author}
+                  </div>
+                  <div className="text-gray-600">
+                    {caseStudies[currentIndex].testimonial!.role}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
