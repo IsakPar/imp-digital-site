@@ -71,6 +71,11 @@ const config: Config = {
         'gradient-primary': 'linear-gradient(135deg, #D9E5C1 0%, #B8C9A3 100%)',
         'gradient-dark': 'linear-gradient(135deg, #1F1F1F 0%, #2C2C2C 100%)',
         'gradient-matcha': 'linear-gradient(135deg, #D9E5C1 0%, #B8C9A3 100%)',
+        // Enhanced button gradients
+        'btn-primary': 'linear-gradient(90deg, #B8C9A3 0%, #9FB087 25%, #8A9B73 50%, #B8C9A3 75%, #D9E5C1 100%)',
+        'btn-primary-hover': 'linear-gradient(270deg, #B8C9A3 0%, #9FB087 25%, #8A9B73 50%, #B8C9A3 75%, #D9E5C1 100%)',
+        'btn-secondary-border': 'linear-gradient(90deg, transparent 0%, #1F1F1F 25%, #2A2D2E 50%, #1F1F1F 75%, transparent 100%)',
+        'btn-secondary-border-hover': 'linear-gradient(270deg, transparent 0%, #1F1F1F 25%, #2A2D2E 50%, #1F1F1F 75%, transparent 100%)',
       },
       
       // Shadows from PRD
@@ -212,6 +217,43 @@ const config: Config = {
             opacity: '0.8',
           },
         },
+        // Enhanced button animations
+        'gradient-flow': {
+          '0%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
+          '100%': {
+            'background-position': '0% 50%',
+          },
+        },
+        'gradient-flow-reverse': {
+          '0%': {
+            'background-position': '100% 50%',
+          },
+          '50%': {
+            'background-position': '0% 50%',
+          },
+          '100%': {
+            'background-position': '100% 50%',
+          },
+        },
+        'border-glow': {
+          '0%': {
+            'border-color': 'transparent',
+            'box-shadow': '0 0 0 rgba(31, 31, 31, 0)',
+          },
+          '50%': {
+            'border-color': '#1F1F1F',
+            'box-shadow': '0 0 20px rgba(31, 31, 31, 0.3)',
+          },
+          '100%': {
+            'border-color': 'transparent',
+            'box-shadow': '0 0 0 rgba(31, 31, 31, 0)',
+          },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.8s ease-out',
@@ -226,6 +268,10 @@ const config: Config = {
         'hero-draw-line': 'draw-line 2s ease-out forwards',
         // Advantage section animations
         'advantage-float-slow': 'float-slow 8s ease-in-out infinite',
+        // Enhanced button animations
+        'btn-gradient-flow': 'gradient-flow 3s ease-in-out infinite',
+        'btn-gradient-flow-reverse': 'gradient-flow-reverse 3s ease-in-out infinite',
+        'btn-border-glow': 'border-glow 2s ease-in-out infinite',
       },
     },
   },

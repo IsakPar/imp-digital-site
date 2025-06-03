@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, Variants } from 'framer-motion';
 import { PrimaryButton, SecondaryButton } from '@/components/ui';
 import { quickPerformanceCheck } from '@/lib/performance-test';
 
 export default function HeroSection() {
   const [isMounted, setIsMounted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Run performance check on mount (development only)
   useEffect(() => {
@@ -19,6 +20,14 @@ export default function HeroSection() {
     }
   }, []);
 
+  // Handle video loading and autoplay
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(console.error);
+    }
+  }, []);
+
   // Enhanced animation variants for letter-by-letter effects
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -27,27 +36,6 @@ export default function HeroSection() {
       transition: {
         staggerChildren: 0.02,
         delayChildren: 0.3,
-      },
-    },
-  };
-
-  const letterVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 100,
-      x: 0,
-      rotateX: -90,
-      scale: 0.3,
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      x: 0,
-      rotateX: 0,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
   };
@@ -149,12 +137,12 @@ export default function HeroSection() {
   };
 
   // Helper function to split text into individual letters with proper gradient support
-  const splitTextIntoLetters = (text: string, variants: any, delay: number = 0, isGradient: boolean = false) => {
+  const splitTextIntoLetters = (text: string, variants: Variants, delay: number = 0, isGradient: boolean = false) => {
     return text.split('').map((char, index) => {
       const totalChars = text.length;
       const progress = index / (totalChars - 1);
       
-      let letterStyle: any = {
+      let letterStyle: Record<string, string | number> = {
         transformOrigin: 'center bottom',
         perspective: '1000px'
       };
@@ -209,183 +197,14 @@ export default function HeroSection() {
     });
   };
 
-  // Wireframe Globe Component
-  const WireframeGlobe = () => {
-    return (
-      <motion.div 
-        className="relative w-96 h-96"
-        initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
-        animate={isMounted ? { opacity: 1, scale: 1, rotateY: 0 } : {}}
-        transition={{ duration: 1.2, delay: 1.8, ease: "easeOut" }}
-      >
-        <motion.svg
-          width="384"
-          height="384"
-          viewBox="0 0 384 384"
-          className="absolute inset-0"
-          style={{ filter: 'drop-shadow(0 4px 12px rgba(184, 201, 163, 0.1))' }}
-          animate={{ 
-            rotateY: [0, 360],
-            rotateX: [0, 15, 0],
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-        >
-          {/* Outer sphere wireframe */}
-          {[...Array(12)].map((_, i) => {
-            const angle = (i * 30) * Math.PI / 180;
-            const opacity = Math.abs(Math.cos(angle)) * 0.8 + 0.2;
-            return (
-              <motion.ellipse
-                key={`meridian-${i}`}
-                cx="192"
-                cy="192"
-                rx="180"
-                ry={Math.abs(Math.cos(angle)) * 180}
-                fill="none"
-                stroke="rgba(184, 201, 163, 0.4)"
-                strokeWidth="1"
-                opacity={opacity}
-                initial={{ pathLength: 0 }}
-                animate={isMounted ? { pathLength: 1 } : {}}
-                transition={{ 
-                  duration: 2, 
-                  delay: 2 + (i * 0.1),
-                  ease: "easeInOut"
-                }}
-                transform={`rotate(${i * 15} 192 192)`}
-              />
-            );
-          })}
-          
-          {/* Latitude lines */}
-          {[...Array(8)].map((_, i) => {
-            const yPos = 60 + (i * 32);
-            const radius = Math.sin((i * 22.5) * Math.PI / 180) * 160;
-            return (
-              <motion.circle
-                key={`latitude-${i}`}
-                cx="192"
-                cy={yPos}
-                r={radius}
-                fill="none"
-                stroke="rgba(184, 201, 163, 0.3)"
-                strokeWidth="1"
-                opacity={0.6}
-                initial={{ pathLength: 0 }}
-                animate={isMounted ? { pathLength: 1 } : {}}
-                transition={{ 
-                  duration: 1.5, 
-                  delay: 2.5 + (i * 0.05),
-                  ease: "easeInOut"
-                }}
-              />
-            );
-          })}
-
-          {/* Connection nodes */}
-          {[...Array(24)].map((_, i) => {
-            const angle1 = (i * 15) * Math.PI / 180;
-            const angle2 = (i * 23) * Math.PI / 180;
-            const x = 192 + Math.cos(angle1) * (140 + Math.sin(angle2) * 40);
-            const y = 192 + Math.sin(angle1) * (100 + Math.cos(angle2) * 30);
-            
-            return (
-              <motion.circle
-                key={`node-${i}`}
-                cx={x}
-                cy={y}
-                r="2"
-                fill="rgba(184, 201, 163, 0.6)"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={isMounted ? { 
-                  scale: [0, 1.5, 1], 
-                  opacity: [0, 1, 0.8] 
-                } : {}}
-                transition={{ 
-                  duration: 0.8, 
-                  delay: 3 + (i * 0.02),
-                  ease: "easeOut"
-                }}
-              />
-            );
-          })}
-
-          {/* Inner connecting lines */}
-          {[...Array(16)].map((_, i) => {
-            const angle = (i * 22.5) * Math.PI / 180;
-            const x1 = 192 + Math.cos(angle) * 60;
-            const y1 = 192 + Math.sin(angle) * 60;
-            const x2 = 192 + Math.cos(angle + Math.PI) * 60;
-            const y2 = 192 + Math.sin(angle + Math.PI) * 60;
-            
-            return (
-              <motion.line
-                key={`inner-${i}`}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="rgba(184, 201, 163, 0.25)"
-                strokeWidth="1"
-                opacity={0.4}
-                initial={{ pathLength: 0 }}
-                animate={isMounted ? { pathLength: 1 } : {}}
-                transition={{ 
-                  duration: 1, 
-                  delay: 3.5 + (i * 0.03),
-                  ease: "easeInOut"
-                }}
-              />
-            );
-          })}
-        </motion.svg>
-
-        {/* Floating data points */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={`point-${i}`}
-            className="absolute w-1 h-1 bg-matcha rounded-full"
-            style={{
-              left: `${20 + i * 60}%`,
-              top: `${30 + (i % 3) * 20}%`,
-            }}
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.3, 1, 0.3],
-              y: [-5, 5, -5],
-            }}
-            transition={{
-              duration: 3 + i * 0.5,
-              repeat: Infinity,
-              delay: 4 + i * 0.3,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </motion.div>
-    );
-  };
-
   return (
     <section className="relative min-h-screen overflow-hidden pt-20">
-      {/* Enhanced gradient background */}
+      {/* Dynamic Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-ivory via-white to-sage/10"></div>
       
-      {/* Secondary gradient overlay */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(217, 229, 193, 0.05) 50%, transparent 100%)'
-        }}
-      ></div>
-      
-      {/* Animated mesh gradient */}
+      {/* Animated gradient overlay */}
       <motion.div
-        className="absolute inset-0 opacity-40"
+        className="absolute inset-0"
         style={{
           background: `
             radial-gradient(ellipse at 20% 80%, rgba(217, 229, 193, 0.15) 0%, transparent 50%),
@@ -394,85 +213,117 @@ export default function HeroSection() {
           `
         }}
         animate={{
-          opacity: [0.4, 0.6, 0.4],
+          background: [
+            `radial-gradient(ellipse at 20% 80%, rgba(217, 229, 193, 0.15) 0%, transparent 50%),
+             radial-gradient(ellipse at 80% 20%, rgba(184, 201, 163, 0.12) 0%, transparent 50%),
+             radial-gradient(ellipse at 40% 40%, rgba(217, 229, 193, 0.08) 0%, transparent 50%)`,
+            `radial-gradient(ellipse at 30% 70%, rgba(184, 201, 163, 0.18) 0%, transparent 60%),
+             radial-gradient(ellipse at 70% 30%, rgba(217, 229, 193, 0.15) 0%, transparent 50%),
+             radial-gradient(ellipse at 50% 50%, rgba(184, 201, 163, 0.10) 0%, transparent 50%)`,
+            `radial-gradient(ellipse at 20% 80%, rgba(217, 229, 193, 0.15) 0%, transparent 50%),
+             radial-gradient(ellipse at 80% 20%, rgba(184, 201, 163, 0.12) 0%, transparent 50%),
+             radial-gradient(ellipse at 40% 40%, rgba(217, 229, 193, 0.08) 0%, transparent 50%)`
+          ]
         }}
         transition={{
-          duration: 8,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Animated background elements */}
+      {/* Floating animated gradient orbs */}
       <motion.div
-        className="absolute top-1/4 left-1/6 w-96 h-96 bg-matcha/8 rounded-full blur-3xl"
+        className="absolute top-1/4 left-1/6 w-96 h-96 rounded-full blur-3xl"
+        style={{
+          background: 'linear-gradient(135deg, rgba(184, 201, 163, 0.1), rgba(217, 229, 193, 0.05))'
+        }}
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-          x: [0, 50, 0],
-          y: [0, -30, 0],
+          scale: [1, 1.3, 1],
+          opacity: [0.3, 0.6, 0.3],
+          x: [0, 60, 0],
+          y: [0, -40, 0],
         }}
         transition={{
-          duration: 8,
+          duration: 10,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
+      
       <motion.div
-        className="absolute bottom-1/4 right-1/6 w-80 h-80 bg-sage/10 rounded-full blur-3xl"
+        className="absolute bottom-1/4 right-1/6 w-80 h-80 rounded-full blur-3xl"
+        style={{
+          background: 'linear-gradient(135deg, rgba(217, 229, 193, 0.12), rgba(184, 201, 163, 0.08))'
+        }}
         animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.5, 0.3, 0.5],
-          x: [0, -40, 0],
-          y: [0, 40, 0],
+          scale: [1.2, 0.8, 1.2],
+          opacity: [0.4, 0.2, 0.4],
+          x: [0, -50, 0],
+          y: [0, 50, 0],
         }}
         transition={{
-          duration: 10,
+          duration: 14,
           repeat: Infinity,
           ease: "easeInOut",
           delay: 2
         }}
       />
-      
-      {/* Additional floating gradient orbs */}
+
+      {/* Additional floating gradient elements */}
       <motion.div
-        className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-matcha/10 to-sage/5 rounded-full blur-2xl"
+        className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full blur-2xl"
+        style={{
+          background: 'radial-gradient(circle, rgba(184, 201, 163, 0.08) 0%, transparent 70%)'
+        }}
         animate={{
-          scale: [0.8, 1.3, 0.8],
-          opacity: [0.2, 0.4, 0.2],
+          scale: [0.8, 1.4, 0.8],
+          opacity: [0.2, 0.5, 0.2],
           rotate: [0, 180, 360],
         }}
         transition={{
-          duration: 15,
+          duration: 18,
           repeat: Infinity,
           ease: "easeInOut",
           delay: 1
         }}
       />
+      
       <motion.div
-        className="absolute top-3/4 right-1/3 w-48 h-48 bg-gradient-to-tl from-sage/8 to-matcha/6 rounded-full blur-2xl"
+        className="absolute top-3/4 right-1/3 w-48 h-48 rounded-full blur-2xl"
+        style={{
+          background: 'radial-gradient(circle, rgba(217, 229, 193, 0.10) 0%, transparent 70%)'
+        }}
         animate={{
-          scale: [1.1, 0.9, 1.1],
+          scale: [1.1, 0.7, 1.1],
           opacity: [0.3, 0.6, 0.3],
           rotate: [360, 180, 0],
         }}
         transition={{
-          duration: 12,
+          duration: 16,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 3
+          delay: 4
         }}
       />
 
-      {/* Subtle grid pattern overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
+      {/* Subtle moving grid pattern */}
+      <motion.div 
+        className="absolute inset-0 opacity-[0.015]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(184, 201, 163, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(184, 201, 163, 0.3) 1px, transparent 1px)
+            linear-gradient(rgba(184, 201, 163, 0.4) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(184, 201, 163, 0.4) 1px, transparent 1px)
           `,
           backgroundSize: '60px 60px'
+        }}
+        animate={{
+          backgroundPosition: ['0px 0px', '60px 60px', '0px 0px']
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear"
         }}
       />
 

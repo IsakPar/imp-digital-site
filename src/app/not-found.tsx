@@ -60,8 +60,10 @@ export default function NotFound() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/" className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-matcha to-matcha-dark text-white rounded-lg font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <Home size={20} />
+            <Link href="/" className="btn-enhanced-matcha text-white px-8 py-4 rounded-lg font-semibold flex items-center gap-3 inline-flex">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
               Back to Home
             </Link>
             

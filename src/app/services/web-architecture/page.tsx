@@ -59,10 +59,10 @@ export default function WebArchitecturePage() {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="#contact" className="block px-8 py-4 bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-center hover:scale-105">
-                    Start Project
+                  <Link href="#contact" className="btn-enhanced-green text-white px-8 py-4 rounded-lg font-semibold text-center">
+                    Start Your Project
                   </Link>
-                  <Link href="#solutions" className="block px-8 py-4 border-2 border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-all duration-300 text-center hover:scale-105">
+                  <Link href="#solutions" className="btn-enhanced-secondary bg-transparent text-green-600 px-8 py-4 rounded-lg font-semibold text-center hover:bg-green-600 hover:text-white border-2 border-green-600">
                     View Solutions
                   </Link>
                 </div>

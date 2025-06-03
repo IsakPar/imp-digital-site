@@ -59,11 +59,11 @@ export default function CyberSecurityPage() {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="#contact" className="block px-8 py-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-center hover:scale-105">
-                    Security Assessment
+                  <Link href="#contact" className="btn-enhanced-red text-white px-8 py-4 rounded-lg font-semibold text-center">
+                    Secure Your Business
                   </Link>
-                  <Link href="#services" className="block px-8 py-4 border-2 border-red-600 text-red-600 rounded-lg font-semibold hover:bg-red-600 hover:text-white transition-all duration-300 text-center hover:scale-105">
-                    View Solutions
+                  <Link href="#services" className="btn-enhanced-secondary bg-transparent text-red-600 px-8 py-4 rounded-lg font-semibold text-center hover:bg-red-600 hover:text-white border-2 border-red-600">
+                    View Security Services
                   </Link>
                 </div>
               </div>

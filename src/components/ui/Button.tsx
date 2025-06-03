@@ -156,32 +156,25 @@ export const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
       "rounded-[8px]", // 8px border radius
       "min-h-[60px]", // Ensures consistent height
       
-      // Background - exact gradient from PRD
-      "bg-gradient-to-br from-[#D9E5C1] to-[#B8C9A3]",
+      // Enhanced gradient background with custom CSS animation
+      "btn-enhanced-primary",
       "text-charcoal",
       
-      // Hover effects - only on desktop
-      "hover:bg-gradient-to-br hover:from-[#B8C9A3] hover:to-[#D9E5C1]",
+      // Enhanced scale effects with better easing
+      !isMobile && shouldAnimate && "hover:scale-[1.08] active:scale-[0.98] hover:shadow-xl hover:shadow-matcha/40",
       
-      // Transitions - optimized for mobile (hydration-safe)
-      isMobile 
-        ? "transition-colors duration-150" 
-        : "transition-all duration-200 ease-out",
-      
-      // Scale effects only on desktop (hydration-safe)
-      !isMobile && shouldAnimate && "hover:scale-105 active:scale-95",
-      
-      // Focus styles for accessibility - 2px offset outline
+      // Focus styles for accessibility - enhanced glow effect
       "focus-visible:outline-none",
-      "focus-visible:ring-2 focus-visible:ring-matcha",
+      "focus-visible:ring-4 focus-visible:ring-matcha/50",
       "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
+      "focus-visible:shadow-2xl focus-visible:shadow-matcha/30",
       
       // Disabled states
       "disabled:opacity-50 disabled:cursor-not-allowed",
-      "disabled:hover:scale-100 disabled:hover:bg-gradient-to-br disabled:hover:from-[#D9E5C1] disabled:hover:to-[#B8C9A3]",
+      "disabled:hover:scale-100",
       
       // Loading state
-      loading && "cursor-wait",
+      loading && "cursor-wait animate-pulse",
       
       className
     );
@@ -290,29 +283,27 @@ export const SecondaryButton = forwardRef<HTMLButtonElement, SecondaryButtonProp
       "rounded-[8px]", // 8px border radius
       "min-h-[60px]", // Ensures consistent height
       
-      // Secondary button styling - outlined variant
-      "bg-transparent border-2 border-charcoal text-charcoal",
+      // Enhanced secondary button with animated gradient border
+      "btn-enhanced-secondary",
+      "bg-transparent text-charcoal",
       "hover:bg-charcoal hover:text-ivory",
       
-      // Transitions - optimized for mobile (hydration-safe)
-      isMobile 
-        ? "transition-colors duration-150" 
-        : "transition-all duration-200 ease-out",
+      // Enhanced scale effects with glow
+      !isMobile && shouldAnimate && "hover:scale-[1.08] active:scale-[0.98] hover:shadow-xl hover:shadow-charcoal/30",
       
-      // Scale effects only on desktop (hydration-safe)
-      !isMobile && shouldAnimate && "hover:scale-105 active:scale-95",
-      
-      // Focus styles for accessibility
+      // Enhanced focus styles for accessibility
       "focus-visible:outline-none",
-      "focus-visible:ring-2 focus-visible:ring-charcoal",
+      "focus-visible:ring-4 focus-visible:ring-charcoal/50",
       "focus-visible:ring-offset-2 focus-visible:ring-offset-ivory",
+      "focus-visible:shadow-2xl focus-visible:shadow-charcoal/30",
       
       // Disabled states
       "disabled:opacity-50 disabled:cursor-not-allowed",
       "disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:text-charcoal",
+      "disabled:hover:shadow-none",
       
       // Loading state
-      loading && "cursor-wait",
+      loading && "cursor-wait animate-pulse",
       
       className
     );

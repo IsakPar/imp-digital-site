@@ -382,3 +382,100 @@ img, video {
 ::-webkit-scrollbar-thumb:hover {
   background: #3d6847;
 }
+
+/* Enhanced Button Gradient Animations */
+@layer components {
+  .btn-enhanced-primary {
+    background: linear-gradient(90deg, #B8C9A3 0%, #9FB087 25%, #8A9B73 50%, #B8C9A3 75%, #D9E5C1 100%);
+    background-size: 200% 100%;
+    transition: all 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  }
+  
+  .btn-enhanced-primary:hover {
+    background: linear-gradient(270deg, #B8C9A3 0%, #9FB087 25%, #8A9B73 50%, #B8C9A3 75%, #D9E5C1 100%);
+    background-size: 200% 100%;
+    animation: gradient-slide 2s ease-in-out infinite;
+  }
+  
+  .btn-enhanced-secondary {
+    position: relative;
+    border: 2px solid #1F1F1F;
+    transition: all 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  }
+  
+  .btn-enhanced-secondary::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(90deg, transparent 0%, #1F1F1F 25%, #2A2D2E 50%, #1F1F1F 75%, transparent 100%);
+    background-size: 200% 100%;
+    border-radius: 10px;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+  }
+  
+  .btn-enhanced-secondary:hover::before {
+    opacity: 1;
+    animation: border-slide 2s ease-in-out infinite;
+  }
+  
+  .btn-enhanced-secondary:hover {
+    box-shadow: 0 0 0 2px rgba(31, 31, 31, 0.1), 0 0 20px rgba(31, 31, 31, 0.3);
+  }
+  
+  /* Enhanced button variants for different color schemes */
+  .btn-enhanced-matcha {
+    background: linear-gradient(90deg, #D9E5C1 0%, #B8C9A3 25%, #9FB087 50%, #B8C9A3 75%, #D9E5C1 100%);
+    background-size: 200% 100%;
+    transition: all 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  }
+  
+  .btn-enhanced-matcha:hover {
+    background: linear-gradient(270deg, #D9E5C1 0%, #B8C9A3 25%, #9FB087 50%, #B8C9A3 75%, #D9E5C1 100%);
+    background-size: 200% 100%;
+    animation: gradient-slide 2s ease-in-out infinite;
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px rgba(217, 229, 193, 0.4);
+  }
+  
+  .btn-enhanced-green {
+    background: linear-gradient(90deg, #4ade80 0%, #22c55e 25%, #16a34a 50%, #22c55e 75%, #4ade80 100%);
+    background-size: 200% 100%;
+    transition: all 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  }
+  
+  .btn-enhanced-green:hover {
+    background: linear-gradient(270deg, #4ade80 0%, #22c55e 25%, #16a34a 50%, #22c55e 75%, #4ade80 100%);
+    background-size: 200% 100%;
+    animation: gradient-slide 2s ease-in-out infinite;
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+  }
+  
+  .btn-enhanced-red {
+    background: linear-gradient(90deg, #f87171 0%, #ef4444 25%, #dc2626 50%, #ef4444 75%, #f87171 100%);
+    background-size: 200% 100%;
+    transition: all 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+  }
+  
+  .btn-enhanced-red:hover {
+    background: linear-gradient(270deg, #f87171 0%, #ef4444 25%, #dc2626 50%, #ef4444 75%, #f87171 100%);
+    background-size: 200% 100%;
+    animation: gradient-slide 2s ease-in-out infinite;
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes gradient-slide {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes border-slide {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

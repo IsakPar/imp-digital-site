@@ -419,7 +419,7 @@ export default function ContactFormSection() {
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-matcha to-matcha-dark text-white py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-lg hover:shadow-matcha/30 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center group"
+                  className="w-full btn-enhanced-matcha text-white py-4 px-8 rounded-xl font-semibold text-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center group"
                   initial={isMounted ? { opacity: 0, y: 20 } : false}
                   animate={isMounted ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}

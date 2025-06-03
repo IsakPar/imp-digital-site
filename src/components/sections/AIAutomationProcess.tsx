@@ -16,8 +16,10 @@ import {
   Target,
   Bot,
   TrendingUp,
-  Eye
+  Eye,
+  MessageSquare
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface ProcessStep {
   id: string;
@@ -386,14 +388,14 @@ const AIAutomationProcess = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <motion.button
-            className="px-8 py-4 bg-gradient-to-r from-matcha to-matcha-dark text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center mx-auto"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+          <Link 
+            href="/contact"
+            className="btn-enhanced-matcha text-white px-8 py-4 rounded-lg font-semibold flex items-center mx-auto"
           >
+            <MessageSquare size={20} className="mr-3" />
             Start Your AI Journey
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </motion.button>
+            <ArrowRight size={20} className="ml-3" />
+          </Link>
         </motion.div>
       </div>
     </motion.section>
